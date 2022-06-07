@@ -1,6 +1,12 @@
 # py_tf2_gpu_dock_mlflow
 An example python/Tensorflow2 model using GPU and MLflow in a docker container
 
+Heavily based on:  [George Novack's 2020 article in Towards Data Science "Create Reusable
+ML Modules with MLflow Projects & Docker"](
+https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-docker-33cd722c93c4)
+Thank you!
+
+
 ### How to install/run
 
 First, per [Google's Tensorflow Docker documentation](https://www.tensorflow.org/install/docker),
@@ -28,9 +34,6 @@ And then two steps regarding this repo:
 
 ### References/links
 
-Based on:  [George Novack's 2020 article in Towards Data Science "Create Reusable
-ML Modules with MLflow Projects & Docker"](
-https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-docker-33cd722c93c4)
 
 Useful in ironing out GPU usage in the Docker container:  <https://www.tensorflow.org/install/docker>
 
