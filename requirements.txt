@@ -1,0 +1,4 @@
+mlflow
+matplotlib
+tensorflow-gpu
+tensorflow-datasets
