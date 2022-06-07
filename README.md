@@ -93,8 +93,7 @@ You might want to put that in your shell resource file (.bashrc for example).
 
 Once the run is running, you should find metrics progress logging in your
 MLFlow instance, something like this:
-![MLflow logged run example image](./mlflow_run.png)
-<img src="./mlflow_run.png" alt="MLflow logged run example image" width="50%"/><BR>
+<img src="./mlflow_run.png" alt="MLflow logged run example image" width="50%"/>
 
 The `make run` macro runs the `project_driver.bash` shell script, but a Python
 script `project_driver.py` with mostly-corresponding functionality is included
