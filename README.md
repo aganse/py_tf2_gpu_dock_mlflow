@@ -92,7 +92,7 @@ You might want to put that in your shell resource file (.bashrc for example).
                    Hyperparameters can be adjusted in the bash script.
 
 Once the run is running, you should find metrics progress logging in your
-MLFlow instance, something like this:
+MLFlow instance, something like this (yes this example is overfit!):
 <img src="./mlflow_run.png" alt="MLflow logged run example image" width="75%"/>
 
 The `make run` macro runs the `project_driver.bash` shell script, but a Python
