@@ -12,10 +12,13 @@ from tensorflow.keras.losses import BinaryCrossentropy
 
 from mlflow_callback import MlFlowCallback
 
+# keeping settings for some other datasets
 # IMAGE_SHAPE = (218, 178, 3)
-IMAGE_SHAPE = (500, 500, 3)
 # ds = tfds.load('celeb_a', split=['train', 'test'], data_dir="/app/data/")
-ds = tfds.load('beans', split=['train', 'test'], data_dir="/app/data/")
+# IMAGE_SHAPE = (500, 500, 3)
+# ds = tfds.load('beans', split=['train', 'test'], data_dir="/app/data/")
+IMAGE_SHAPE = (96, 96, 3)
+ds = tfds.load('patch_camelyon', split=['train', 'test'], data_dir="/app/data/")
 
 
 def data_generator(
@@ -27,8 +30,10 @@ def data_generator(
     def generator():
         index = 0 if train else 1
         for sample in ds[index].take(samples).batch(batch_size).repeat():
-            # yield sample['image']/255, tf.map_fn(lambda label: 1 if label else 0, sample['attributes']['Smiling'], dtype=tf.int32)
-            yield sample['image'] / 255, tf.map_fn(lambda label: 1 if label == 2 else 0, sample['label'], dtype=tf.int32)
+            # keeping settings for some other datasets
+            # yield sample['image']/255, tf.map_fn(lambda label: 1 if label else 0, sample['attributes']['Smiling'], dtype=tf.int32)  # celeb_a
+            # yield sample['image'] / 255, tf.map_fn(lambda label: 1 if label == 2 else 0, sample['label'], dtype=tf.int32)  # beans
+            yield sample['image'] / 255, sample['label']
 
     return generator
 

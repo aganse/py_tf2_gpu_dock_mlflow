@@ -5,10 +5,10 @@ mlflow run . \
     -A gpus=all                                         \
     -b local                                            \
     --experiment-name='Test/Debug'                      \
-    -P batch_size=32                                    \
-    -P epochs=10                                        \
+    -P batch_size=64                                    \
+    -P epochs=15                                        \
     -P convolutions=3                                   \
-    -P training_samples=15000                           \
-    -P validation_samples=2000                          \
+    -P training_samples=260000                          \
+    -P validation_samples=30000                         \
     -P randomize_images=True 
 
