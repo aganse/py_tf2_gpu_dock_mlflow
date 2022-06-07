@@ -23,7 +23,7 @@ the Celebreties ([`celeb_a`](https://www.tensorflow.org/datasets/catalog/celeb_a
 dataset used in his original example appears to not be available in Tensorflow
 datasets anymore so I've chosen this other medical one.
 
-<img src="./pcam.png" alt="lymph node section example images" width="200"/><BR>
+<img src="./pcam.png" alt="lymph node section example images" width="50%"/><BR>
 <sub>
 [Veeling, Linmans, Winkens, Cohen, Welling - 2018](https://doi.org/10.1007/978-3-030-00934-2_24)
 </sub>
@@ -94,7 +94,7 @@ You might want to put that in your shell resource file (.bashrc for example).
 Once the run is running, you should find metrics progress logging in your
 MLFlow instance, something like this:
 ![MLflow logged run example image](./mlflow_run.png)
-<img src="./mlflow_run.png" alt="MLflow logged run example image" width="200"/><BR>
+<img src="./mlflow_run.png" alt="MLflow logged run example image" width="50%"/><BR>
 
 The `make run` macro runs the `project_driver.bash` shell script, but a Python
 script `project_driver.py` with mostly-corresponding functionality is included
