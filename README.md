@@ -10,29 +10,30 @@ me but I don't know much about that problem itself, nor claim to have come up
 with a model here that works well on it); rather it's to provide a convenient
 template to rapidly throw together new models that use 
 [Python](https://www.python.org)/[Tensorflow](https://www.tensorflow.org)
-models running on GPUs in a [Docker](https://www.docker.com) container and log
+running on GPUs in a [Docker](https://www.docker.com) container and log
 the results to [MLflow](https://mlflow.org) using its "Project" functionality.
+
 The code and setup here are heavily based on
 [George Novack's 2020 article in Towards Data Science, "Create Reusable
 ML Modules with MLflow Projects & Docker"](
 https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-docker-33cd722c93c4)
-(Thank you!)  I've just pulled things together into one repo, added a little
+(thank you!).  I've simply pulled things together into one repo, added a little
 bit of functionality, and set things up for some more portability.  And alas
 the Celebreties ([`celeb_a`](https://www.tensorflow.org/datasets/catalog/celeb_a))
 dataset used in his original example appears to not be available in Tensorflow
 datasets anymore so I've chosen this other medical one.
 
-![lymph node section example images](./pcam.png)
-<sub><sup>
+<img src="./pcam.png" alt="lymph node section example images" width="200"/><BR>
+<sub>
 [Veeling, Linmans, Winkens, Cohen, Welling - 2018](https://doi.org/10.1007/978-3-030-00934-2_24)
-</sup></sub>
+</sub>
 
 
 ### How to install/run
 
 #### First, ensure your system's all ready:
 Per [Google's Tensorflow Docker documentation](https://www.tensorflow.org/install/docker),
-check that the NVidia GPU device is present:
+check that your NVidia GPU device is present:
 ```
 > lspci | grep -i nvidia
 01:00.0 VGA compatible controller: NVIDIA Corporation TU104 [GeForce RTX 2080 SUPER] (rev a1)
@@ -63,7 +64,11 @@ Sun Jun  5 16:31:20 2022
 |=============================================================================|
 +-----------------------------------------------------------------------------+
 ```
-And set your MLFLOW_TRACKING_URI to whatever address you use for it, e.g.:
+If any trouble with those, that 
+[Google Tensorflow Docker documentation](https://www.tensorflow.org/install/docker)
+is really helpful.
+
+Lastly set your MLFLOW_TRACKING_URI to whatever address you use for it, e.g.:
 ```
 export MLFLOW_TRACKING_URI=http://localhost:5000
 ```
@@ -71,33 +76,36 @@ You might want to put that in your shell resource file (.bashrc for example).
 
 
 #### Then two main steps to run things:
-(Well ok first git clone this repo and cd into it.  Then two steps...)
+(Well ok first git clone this repo and cd into it.  Then there are two steps...)
 
 1. `make build` :  Load the dataset and build the docker image.  Note this
                    dataset is 7.5GB and can take a while to download, but at
                    least that's a one-time event.  Do note the whole dataset
-                   is then stored in the project container, which probably
-                   wouldn't be what you would do in practice assuming you'd
-                   be operating on more data, but at least it gets us started
-                   in this example (it's what the original example code did).
+                   is then stored in the project container, which you likely
+                   would not do in practice if you'd be operating on a lot
+                   more data, but at least it gets us started in this example
+                   here (it's what the original example code did).
 2. `make run`   :  Run the training, which will progressively log state into
                    mlflow.  Again the present state of this repo is not meant
                    as any competitive modeling on this topic - it's terrible
                    in fact - but it functions, and its provides a template.
                    Hyperparameters can be adjusted in the bash script.
 
+Once the run is running, you should find metrics progress logging in your
+MLFlow instance, something like this:
 ![MLflow logged run example image](./mlflow_run.png)
+<img src="./mlflow_run.png" alt="MLflow logged run example image" width="200"/><BR>
 
 The `make run` macro runs the `project_driver.bash` shell script, but a Python
 script `project_driver.py` with mostly-corresponding functionality is included
-too.  However, importantly note: as of this writing, it appears that GPU usage
-can only be set for models in Docker containers in MLFlow Projects if using the
-shell script call to mlflow (ie the shell command `mlflow` now just recently
-takes a `gpus=all` argument, but the Python mlflow.projects.run() method still
-does not do so yet!).
+here too.  However, importantly note: as of this writing, it appears that GPU
+usage can only be set for models in Docker containers in MLFlow Projects if
+using the shell script call to mlflow (ie the shell command `mlflow` now just
+recently takes a `gpus=all` argument, but the Python mlflow.projects.run()
+method still does not do so yet!).
 
 
-### Next steps
+### Upcoming next steps
 
 1. Log the resulting model into the MLFlow registry.
 2. Serve the resulting model from MLFlow registry via MLFlow Serving.
