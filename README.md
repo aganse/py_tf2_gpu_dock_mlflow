@@ -23,15 +23,15 @@ the Celebreties ([`celeb_a`](https://www.tensorflow.org/datasets/catalog/celeb_a
 dataset used in his original example appears to not be available in Tensorflow
 datasets anymore so I've chosen this other medical one.
 
-<img src="./pcam.png" alt="lymph node section example images" width="50%"/><BR>
-<sub>
+<img src="./pcam.png" alt="lymph node section example images" width="75%"/><BR>
+<sup>
 [Veeling, Linmans, Winkens, Cohen, Welling - 2018](https://doi.org/10.1007/978-3-030-00934-2_24)
-</sub>
+</sup>
 
 
-### How to install/run
+## How to install/run
 
-#### First, ensure your system's all ready:
+### First, ensure your system's all ready:
 Per [Google's Tensorflow Docker documentation](https://www.tensorflow.org/install/docker),
 check that your NVidia GPU device is present:
 ```
@@ -75,7 +75,7 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 You might want to put that in your shell resource file (.bashrc for example).
 
 
-#### Then two main steps to run things:
+### Then two main steps to run things:
 (Well ok first git clone this repo and cd into it.  Then there are two steps...)
 
 1. `make build` :  Load the dataset and build the docker image.  Note this
@@ -93,7 +93,7 @@ You might want to put that in your shell resource file (.bashrc for example).
 
 Once the run is running, you should find metrics progress logging in your
 MLFlow instance, something like this:
-<img src="./mlflow_run.png" alt="MLflow logged run example image" width="50%"/>
+<img src="./mlflow_run.png" alt="MLflow logged run example image" width="75%"/>
 
 The `make run` macro runs the `project_driver.bash` shell script, but a Python
 script `project_driver.py` with mostly-corresponding functionality is included
@@ -104,7 +104,7 @@ recently takes a `gpus=all` argument, but the Python mlflow.projects.run()
 method still does not do so yet!).
 
 
-### Upcoming next steps
+## Upcoming next steps
 
 1. Log the resulting model into the MLFlow registry.
 2. Serve the resulting model from MLFlow registry via MLFlow Serving.
@@ -113,7 +113,7 @@ method still does not do so yet!).
    new quickie problems that arise.
 
 
-### References/links
+## References/links
 
 Useful in ironing out GPU usage in the Docker container:  <https://www.tensorflow.org/install/docker>
 
