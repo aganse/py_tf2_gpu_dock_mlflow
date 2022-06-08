@@ -1,4 +1,6 @@
 # py_tf2_gpu_dock_mlflow
+_*Get new Tensorflow/GPU models running quickly, and logging in MLflow, without
+installing anything new on your host system.*_
 An example Python/Tensorflow2 model using GPU and MLflow in a docker container.
 Python3, Tensorflow2, and the NVidia/GPU handling are entirely in the container;
 the host system only needs the Nvidia driver and Docker installed.  An MLflow
