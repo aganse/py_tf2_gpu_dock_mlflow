@@ -1,5 +1,11 @@
 # py_tf2_gpu_dock_mlflow
 An example Python/Tensorflow2 model using GPU and MLflow in a docker container.
+Python3, Tensorflow2, and the NVidia/GPU handling are entirely in the container;
+the host system only needs the Nvidia driver and Docker installed.  An MLflow
+instance is looked for at the address in the MLFLOW_TRACKING_URI environment
+variable per usual MLflow usage - see my 
+[docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo for an easy
+Docker-based way to get that running quickly too.
 
 In this example, we use the 
 [patch_camelyon dataset](https://www.tensorflow.org/datasets/catalog/patch_camelyon)
@@ -23,7 +29,7 @@ the Celebreties ([`celeb_a`](https://www.tensorflow.org/datasets/catalog/celeb_a
 dataset used in his original example appears to not be available in Tensorflow
 datasets anymore so I've chosen this other medical one.
 
-<img src="./pcam.png" alt="lymph node section example images" width="75%"/><BR>
+<img src="./pcam.png" alt="lymph node section example images" width="60%"/><BR>
 <sup>
 [Veeling, Linmans, Winkens, Cohen, Welling - 2018](https://doi.org/10.1007/978-3-030-00934-2_24)
 </sup>
@@ -92,8 +98,8 @@ You might want to put that in your shell resource file (.bashrc for example).
                    Hyperparameters can be adjusted in the bash script.
 
 Once the run is running, you should find metrics progress logging in your
-MLFlow instance, something like this (yes this example is overfit!):
-<img src="./mlflow_run.png" alt="MLflow logged run example image" width="75%"/>
+MLFlow instance, something like this (yes this example is a bit overfit):
+<img src="./mlflow_run.png" alt="MLflow logged run example image" width="60%"/>
 
 The `make run` macro runs the `project_driver.bash` shell script, but a Python
 script `project_driver.py` with mostly-corresponding functionality is included
