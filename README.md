@@ -107,7 +107,8 @@ here too.  However, importantly note:  as of this writing, it appears that GPU
 usage can only be done for models in Docker containers in MLFlow Projects if
 using the _shell script_ call to mlflow.  I.e. the shell command `mlflow` now
 just recently takes a `gpus=all` argument, whereas the Python
-`mlflow.projects.run()` method still does not do so yet.
+`mlflow.projects.run()` method still does not do so yet.  Note that's strictly
+about an issue with MLflow, not with Python or Tensorflow or Docker.
 
 
 ## Upcoming next steps
