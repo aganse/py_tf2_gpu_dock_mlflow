@@ -98,16 +98,16 @@ You might want to put that in your shell resource file (.bashrc for example).
                    Hyperparameters can be adjusted in the bash script.
 
 Once the run is running, you should find metrics progress logging in your
-MLFlow instance, something like this (yes this example is a bit overfit):
+MLFlow instance, something like this (yes this example is a bit overfit):<BR>
 <img src="./mlflow_run.png" alt="MLflow logged run example image" width="60%"/>
 
 The `make run` macro runs the `project_driver.bash` shell script, but a Python
 script `project_driver.py` with mostly-corresponding functionality is included
-here too.  However, importantly note: as of this writing, it appears that GPU
-usage can only be set for models in Docker containers in MLFlow Projects if
-using the shell script call to mlflow (ie the shell command `mlflow` now just
-recently takes a `gpus=all` argument, but the Python mlflow.projects.run()
-method still does not do so yet!).
+here too.  However, importantly note:  as of this writing, it appears that GPU
+usage can only be done for models in Docker containers in MLFlow Projects if
+using the _shell script_ call to mlflow.  I.e. the shell command `mlflow` now
+just recently takes a `gpus=all` argument, whereas the Python
+`mlflow.projects.run()` method still does not do so yet.
 
 
 ## Upcoming next steps
