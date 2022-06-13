@@ -1,7 +1,6 @@
 # py_tf2_gpu_dock_mlflow
-_**Get new Python/Tensorflow/GPU models running quickly, and logging in MLflow,
-without installing anything new on your host system (by keeping it all in Docker
-with MLflow Projects).**_
+_**Get new Python/Tensorflow/GPU models running quickly, and logging performance
+and resulting model in MLflow, keeping everything in Docker via MLflow Projects.**_
 
 An example Python/Tensorflow2 model using GPU and MLflow in a docker container.
 Python3, Tensorflow2, and the NVidia/GPU handling are entirely in the container;
@@ -12,26 +11,26 @@ variable per usual MLflow usage - see my
 Docker-based way to get that running quickly too.
 
 In this example, we use the 
-[patch_camelyon dataset](https://www.tensorflow.org/datasets/catalog/patch_camelyon)
-built-in to Tensorflow to train/test a CNN-based image classification model to
-detect metastatic tissue in histopathologic scans of lymph node sections.
-The focus here is not on that specific image classification problem (and pardon
-me but I don't know much about that problem itself, nor claim to have come up
-with a model here that works well on it); rather it's to provide a convenient
+[patch_camelyon](https://www.tensorflow.org/datasets/catalog/patch_camelyon)
+breast-cancer detection dataset from the Tensorflow datasets to train/test a
+VGG166-based image classification model to detect metastatic tissue in
+histopathologic scans of lymph node sections.  
+I don't claim to know much about that specific problem itself, but I have based
+the model configuration and parameters in this demonstration upon several
+[papers on the topic](#References).  The idea is to provide a convenient
 template to rapidly throw together new models that use 
-[Python](https://www.python.org)/[Tensorflow](https://www.tensorflow.org)
+[Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
 running on GPUs in a [Docker](https://www.docker.com) container and log
 the results to [MLflow](https://mlflow.org) using its "Project" functionality.
+The models are logged to the MLflow registry and can be easily served via REST
+API or downloaded from the registry into python code for further use.
 
-The code and setup here are heavily based on
-[George Novack's 2020 article in Towards Data Science, "Create Reusable
-ML Modules with MLflow Projects & Docker"](
+The code and setup were initially based on [George Novack's 2020 article in
+Towards Data Science, "Create Reusable ML Modules with MLflow Projects & Docker"](
 https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-docker-33cd722c93c4)
-(thank you!).  I've simply pulled things together into one repo, added a little
-bit of functionality, and set things up for some more portability.  And alas
-the Celebreties ([`celeb_a`](https://www.tensorflow.org/datasets/catalog/celeb_a))
-dataset used in his original example appears to not be available in Tensorflow
-datasets anymore so I've chosen this other medical one.
+(thank you).  I've pulled things together into an immediately usable repo meant
+to use as a template, added some functionality (artifact logging, model registry,
+gpu capability), and generalized it a bit.
 
 <img src="./pcam.png" alt="lymph node section example images" width="60%"/><BR>
 <sup>
@@ -85,21 +84,16 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 You might want to put that in your shell resource file (.bashrc for example).
 
 
-### Then two main steps to run things:
-(Well ok first git clone this repo and cd into it.  Then there are two steps...)
+### Then follow these steps to run things:
 
-1. `make build` :  Load the dataset and build the docker image.  Note this
-                   dataset is 7.5GB and can take a while to download, but at
-                   least that's a one-time event.  Do note the whole dataset
-                   is then stored in the project container, which you likely
-                   would not do in practice if you'd be operating on a lot
-                   more data, but at least it gets us started in this example
-                   here (it's what the original example code did).
+1. git clone this repo and cd into it...
+2. `make build` :  Build the docker image; super quick.
+3. `make load_tfdata` :  Download and setup the patch_camelyon dataset from
+                   Tensorflow datasets.  Note this dataset is 7.5GB and this
+                   step can take a little while, but it's a one-time event.
 2. `make run`   :  Run the training, which will progressively log state into
-                   mlflow.  Again the present state of this repo is not meant
-                   as any competitive modeling on this topic - it's terrible
-                   in fact - but it functions, and its provides a template.
-                   Hyperparameters can be adjusted in the bash script.
+                   mlflow.  This too can take a while.  For context, on a
+                   NVIDIA GeForce RTX 2080 SUPER it took about two hours.
 
 Once the run is running, you should find metrics progress logging in your
 MLFlow instance, something like this (yes this example is a bit overfit):<BR>
@@ -115,25 +109,28 @@ just recently takes a `gpus=all` argument, whereas the Python
 about an issue with MLflow, not with Python or Tensorflow or Docker.
 
 
-## Upcoming next steps
+## References
 
-1. Log the resulting model into the MLFlow registry.
-2. Serve the resulting model from MLFlow registry via MLFlow Serving.
-3. Generalize the training and other code further away from Novack's original
-   scripts (but thank you again!) to make it easier to rapidly adapt this to
-   new quickie problems that arise.
+About this patch_camelyon breast-cancer cell detection problem:
+* <https://github.com/basveeling/pcam/blob/master/README.md#why-pcam>
+* <https://www.diva-portal.org/smash/get/diva2:1597512/FULLTEXT01.pdf>
+* <https://arxiv.org/pdf/1909.11870.pdf>
+* <https://ieeexplore.ieee.org/document/9626116>
 
-
-## References/links
-
-Useful in ironing out GPU usage in the Docker container:  <https://www.tensorflow.org/install/docker>
-
-Possibly of use later as I pull together some example variations:
-
-* <https://cosminsanda.com/posts/experiment-tracking-with-mlflow-inside-amazon-sagemaker>
+About relevant Tensorflow details in particular:
+* <https://www.tensorflow.org/install/docker>
+* <https://www.tensorflow.org/guide/keras/preprocessing_layers>
+* <https://www.tensorflow.org/api_docs/python/tf/keras/metrics>
+* <https://www.tensorflow.org/tutorials/structured_data/imbalanced_data>
 * <https://www.tensorflow.org/api_docs/python/tf/data/Dataset>
 * <https://www.tensorflow.org/tutorials/load_data/images>
 * <https://www.tensorflow.org/api_docs/python/tf/keras/utils/image_dataset_from_directory>
+
+About additional computational tools used here (Docker, MLflow, etc):
+* <https://towardsdatascience.com/using-mlflow-to-track-and-version-machine-learning-models-efd5daa08df0>
+* <https://santiagof.medium.com/effortless-models-deployment-with-mlflow-2b1b443ff157>
+* <https://towardsdatascience.com/step-by-step-vgg16-implementation-in-keras-for-beginners-a833c686ae6c#:~:text=VGG16%20is%20a%20convolution%20neural,vision%20model%20architecture%20till%20date.>
+* <https://cosminsanda.com/posts/experiment-tracking-with-mlflow-inside-amazon-sagemaker>
 * <https://stackoverflow.com/questions/48309631/tensorflow-tf-data-dataset-reading-large-hdf5-files>
 * <https://github.com/tensorflow/io/issues/174>  (looks like TF-IO has built-in HDF5 reader?)
 

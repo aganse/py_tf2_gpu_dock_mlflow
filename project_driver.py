@@ -6,11 +6,12 @@ mlflow.projects.run(
     synchronous=False,
     experiment_name='Test/Debug',
     parameters={
-        'batch_size': 32,
-        'epochs': 10,
-        'convolutions': 3,
-        'training_samples': 15000,
-        'validation_samples': 2000,
+        'run_name': 'patch_camelyon',
+        'batch_size': 128,
+        'epochs': 15,
+        'convolutions': 0,
+        'training_samples': 260000,
+        'validation_samples': 30000,
         'randomize_images': True
     })
 
