@@ -14,11 +14,11 @@ In this example, we use the
 [patch_camelyon](https://www.tensorflow.org/datasets/catalog/patch_camelyon)
 breast-cancer detection dataset from the Tensorflow datasets to train/test a
 VGG166-based image classification model to detect metastatic tissue in
-histopathologic scans of lymph node sections.  
-I don't claim to know much about that specific problem itself, but I have based
-the model configuration and parameters in this demonstration upon several
-[papers on the topic](#References).  The idea is to provide a convenient
-template to rapidly throw together new models that use 
+histopathologic scans of lymph node sections.  I don't have much familiarity
+with this medical topic itself, but I have based the model configuration and
+parameters in this demo upon several [papers on the topic](#References).
+The idea is to provide a convenient template to rapidly throw together new
+models that use 
 [Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
 running on GPUs in a [Docker](https://www.docker.com) container and log
 the results to [MLflow](https://mlflow.org) using its "Project" functionality.
@@ -28,9 +28,9 @@ API or downloaded from the registry into python code for further use.
 The code and setup were initially based on [George Novack's 2020 article in
 Towards Data Science, "Create Reusable ML Modules with MLflow Projects & Docker"](
 https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-docker-33cd722c93c4)
-(thank you).  I've pulled things together into an immediately usable repo meant
-to use as a template, added some functionality (artifact logging, model registry,
-gpu capability), and generalized it a bit.
+(thank you).  I've pulled things together into a single repo meant to use as a
+template, added some new functionality (artifact logging, model registry, GPU
+capability), and generalized it a bit.
 
 <img src="./pcam.png" alt="lymph node section example images" width="60%"/><BR>
 <sup>
@@ -39,6 +39,15 @@ gpu capability), and generalized it a bit.
 
 
 ## How to install/run
+
+### TL;DR
+1. have GPU and Docker already working on your system
+2. have your MLFLOW_TRACKING_URI env var pointing to a running mlflow server
+3. git clone <this repo> and cd into it
+4. make build
+5. make load_tfdata
+6. make run
+
 
 ### First, ensure your system's all ready:
 Per [Google's Tensorflow Docker documentation](https://www.tensorflow.org/install/docker),
