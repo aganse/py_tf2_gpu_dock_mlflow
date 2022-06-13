@@ -5,10 +5,14 @@ mlflow run . \
     -A gpus=all                                         \
     -b local                                            \
     --experiment-name='Test/Debug'                      \
-    -P batch_size=64                                    \
-    -P epochs=15                                        \
-    -P convolutions=3                                   \
-    -P training_samples=260000                          \
-    -P validation_samples=30000                         \
-    -P randomize_images=True 
-
+    -P run_name='patch_camelyon'                        \
+    -P randomize_images=True                            \
+    -P convolutions=0                                   \
+    -P epochs=1                                        \
+    -P batch_size=1                                   \
+    -P training_samples=26                          \
+    -P validation_samples=3
+    # -P epochs=15                                        \
+    # -P batch_size=128                                   \
+    # -P training_samples=260000                          \
+    # -P validation_samples=30000

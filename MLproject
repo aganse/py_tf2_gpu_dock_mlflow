@@ -1,7 +1,9 @@
-name: py_tf2_gpu
+name: patch_camelyon_example
 
 docker_env:
-  image: py_tf2_gpu_mlflow:latest
+  image: patch_camelyon_vgg16:latest
+  volumes: ["/storage/tf_data:/app/data", "/storage/mlflow_runs:/storage/mlflow_runs"]
+  # environment: [["NEW_ENV_VAR", "new_var_value"], "VAR_TO_COPY_FROM_HOST_ENVIRONMENT"]
 
 entry_points:
   main:
@@ -12,10 +14,12 @@ entry_points:
       training_samples: {type: int}
       validation_samples: {type: int}
       randomize_images: {type: bool}
+      run_name: {type: str, default: py_tf2_gpu}
     command: "python train.py \
       --batch-size {batch_size} \
       --epochs {epochs} \
       --convolutions {convolutions} \
       --training-samples {training_samples} \
       --validation-samples {validation_samples} \
-      --randomize-images {randomize_images}"
+      --randomize-images {randomize_images} \
+      --run-name {run_name}"
