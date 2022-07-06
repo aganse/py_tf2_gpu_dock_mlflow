@@ -42,10 +42,12 @@ capability), and generalized it a bit.
 
 ### TL;DR
 1. have GPU and Docker already working on your system
-2. have your MLFLOW_TRACKING_URI env var pointing to a running mlflow server
+2. have your MLFLOW_TRACKING_URI env var pointing to a running MLflow server
+3. have your MLflow server's artifact storage directory and your data files
+   accessible somewhere within /storage (which is volume-mapped into the container)
 3. git clone <this repo> and cd into it
 4. make build
-5. make load_tfdata
+5. make load_tfdata (if using the default tf dataset shown in this readme)
 6. make run
 
 
@@ -96,16 +98,19 @@ You might want to put that in your shell resource file (.bashrc for example).
 ### Then follow these steps to run things:
 
 1. git clone this repo and cd into it...
+1.5 generate python env, install mlflow into it, activate that env (add detail here).
 2. `make build` :  Build the docker image; super quick.
 3. `make load_tfdata` :  Download and setup the patch_camelyon dataset from
                    Tensorflow datasets.  Note this dataset is 7.5GB and this
                    step can take a little while, but it's a one-time event.
+                   Also this is only neccesary for runs using the tensorflow
+                   dataset (default example shown in this readme).
 2. `make run`   :  Run the training, which will progressively log state into
                    mlflow.  This too can take a while.  For context, on a
                    NVIDIA GeForce RTX 2080 SUPER it took about two hours.
 
 Once the run is running, you should find metrics progress logging in your
-MLFlow instance, something like this (yes this example is a bit overfit):<BR>
+MLFlow instance, something like this (yes this example is totally overfit):<BR>
 <img src="./mlflow_run.png" alt="MLflow logged run example image" width="60%"/>
 
 The `make run` macro runs the `project_driver.bash` shell script, but a Python

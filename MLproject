@@ -2,7 +2,7 @@ name: patch_camelyon_example
 
 docker_env:
   image: patch_camelyon_vgg16:latest
-  volumes: ["/storage/tf_data:/app/data", "/storage/mlflow_runs:/storage/mlflow_runs"]
+  volumes: ["/storage:/storage"]  # contains both data and mlruns
   # environment: [["NEW_ENV_VAR", "new_var_value"], "VAR_TO_COPY_FROM_HOST_ENVIRONMENT"]
 
 entry_points:
