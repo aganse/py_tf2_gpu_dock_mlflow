@@ -7,14 +7,14 @@ This is an example Python/Tensorflow2 setup using GPU and MLflow in a docker
 container.  Python3, Tensorflow2, and the NVidia/GPU handling are entirely in
 the container; the host system only needs the Nvidia driver and Docker
 installed, and currently one runs the `mlflow run` script in a python
-environment that has the `mlflow` package installed in it purely just to
-connect to your remote MLflow server and feed the MLproject to the Docker
-container.  With those things and just the project_driver.bash script,
+environment that has the `mlflow` package installed in it, purely for the
+MLflow CLI to connect to your remote MLflow server and feed the MLproject to
+the Docker container.  With those and just the `project_driver.bash` script,
 technically you don't even need to clone this repo; you can reference it at
 the top of that script.  But presumably the point is that you want to adapt
 this repo's content to your own project - so, you know, clone the repo.  ;-)
 
-An MLflow instance is looked for at the address in the MLFLOW_TRACKING_URI
+An MLflow instance is looked for at the address in the `MLFLOW_TRACKING_URI`
 environment variable per usual MLflow usage - see my 
 [docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo for an easy
 Docker-based way to get that running quickly too.
@@ -52,17 +52,20 @@ capability), and generalized it a bit.
 ## How to install/run
 
 ### TL;DR
+0. note this repo has been written and tested assuming running on linux or
+   macos.  it likely will not work out of the box in windows without a
+   little tweaking.
 1. have GPU and Docker already working on your system
 2. have your MLFLOW_TRACKING_URI env var pointing to a running MLflow server
 3. have your MLflow server's artifact storage directory and your data files
-   accessible somewhere within /storage (which is volume-mapped into the container)
-3. git clone <this repo> and cd into it
-4. make build
-5. make load_tfdata (if using the default tf dataset shown in this readme)
-6. make run
+   accessible somewhere within /storage (which is volume-mapped into container)
+4. git clone <this repo>, cd into it, create python env via `make env`
+5. `make build`
+6. `make load_tfdata` (if using the default tf dataset shown in this readme)
+7. `make run` (only this step requires the python env, just for mlflow cli)
 
 
-### First, ensure your system's all ready:
+### First, ensure your system's all ready (TL;DR steps 1-3):
 Per [Google's Tensorflow Docker documentation](https://www.tensorflow.org/install/docker),
 check that your NVidia GPU device is present:
 ```
@@ -105,18 +108,27 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 ```
 You might want to put that in your shell resource file (.bashrc for example).
 
+As far as filesystem directories available, `/storage` is mapped into the
+container (which can of course be changed to match your setup), so for example
+in my setup I have `/storage/tf_data`, `/storage/mlruns`, and `/storage/data`
+for my Tensorflow datasets, MLflow artifacts store (determined in the remote
+MLflow server configuration), and "real" image data.
 
-### Then follow these steps to run things:
 
-1. git clone this repo and cd into it...
-1.5 generate python env, install mlflow into it, activate that env (add detail here).
-2. `make build` :  Build the docker image; super quick.
-3. `make load_tfdata` :  Download and setup the patch_camelyon dataset from
-                   Tensorflow datasets.  Note this dataset is 7.5GB and this
-                   step can take a little while, but it's a one-time event.
-                   Also this is only neccesary for runs using the tensorflow
-                   dataset (default example shown in this readme).
-2. `make run`   :  Run the training, which will progressively log state into
+### Then follow these steps to run things (TL;DR steps 4-7):
+
+1. git clone this repo and cd into it.
+2. generate a python env, activate that env, and install mlflow into it.
+   This can be done with `make env`.  After running that once, you don't
+   need to do so again; on starting up work again you can re-enter the python
+   environment as needed from this directory via `source .venv/bin/activate`.
+3. `make build` :  Build the docker image; super quick.
+4. `make load_tfdata` :  Download and setup the patch_camelyon dataset from
+                   Tensorflow datasets.  This is only neccesary for runs using
+                   a Tensorflow dataset (default example shown in this readme).
+                   Note this default example dataset is 7.5GB and this step
+                   can take a little while, but it's a one-time event.
+5. `make run`   :  Run the training, which will progressively log state into
                    mlflow.  This too can take a while.  For context, on a
                    NVIDIA GeForce RTX 2080 SUPER it took about two hours.
 
@@ -141,6 +153,7 @@ About this patch_camelyon breast-cancer cell detection problem:
 * <https://www.diva-portal.org/smash/get/diva2:1597512/FULLTEXT01.pdf>
 * <https://arxiv.org/pdf/1909.11870.pdf>
 * <https://ieeexplore.ieee.org/document/9626116>
+* <https://doi.org/10.1007/978-3-030-00934-2_24>
 
 About relevant Tensorflow details in particular:
 * <https://www.tensorflow.org/install/docker>
@@ -152,6 +165,7 @@ About relevant Tensorflow details in particular:
 * <https://www.tensorflow.org/api_docs/python/tf/keras/utils/image_dataset_from_directory>
 
 About additional computational tools used here (Docker, MLflow, etc):
+* <https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-docker-33cd722c93c4>
 * <https://towardsdatascience.com/using-mlflow-to-track-and-version-machine-learning-models-efd5daa08df0>
 * <https://santiagof.medium.com/effortless-models-deployment-with-mlflow-2b1b443ff157>
 * <https://towardsdatascience.com/step-by-step-vgg16-implementation-in-keras-for-beginners-a833c686ae6c#:~:text=VGG16%20is%20a%20convolution%20neural,vision%20model%20architecture%20till%20date.>
