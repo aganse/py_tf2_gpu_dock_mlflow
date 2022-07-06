@@ -1,24 +1,35 @@
 # py_tf2_gpu_dock_mlflow
-_**Get new Python/Tensorflow/GPU models running quickly, and logging performance
-and resulting model in MLflow, keeping everything in Docker via MLflow Projects.**_
+_**Get new Python/Tensorflow/GPU models running quickly, and logging
+performance and resulting model in MLflow, keeping everything in Docker via
+MLflow Projects.**_
 
-An example Python/Tensorflow2 model using GPU and MLflow in a docker container.
-Python3, Tensorflow2, and the NVidia/GPU handling are entirely in the container;
-the host system only needs the Nvidia driver and Docker installed.  An MLflow
-instance is looked for at the address in the MLFLOW_TRACKING_URI environment
-variable per usual MLflow usage - see my 
+This is an example Python/Tensorflow2 setup using GPU and MLflow in a docker
+container.  Python3, Tensorflow2, and the NVidia/GPU handling are entirely in
+the container; the host system only needs the Nvidia driver and Docker
+installed, and currently one runs the `mlflow run` script in a python
+environment that has the `mlflow` package installed in it purely just to
+connect to your remote MLflow server and feed the MLproject to the Docker
+container.  With those things and just the project_driver.bash script,
+technically you don't even need to clone this repo; you can reference it at
+the top of that script.  But presumably the point is that you want to adapt
+this repo's content to your own project - so, you know, clone the repo.  ;-)
+
+An MLflow instance is looked for at the address in the MLFLOW_TRACKING_URI
+environment variable per usual MLflow usage - see my 
 [docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo for an easy
 Docker-based way to get that running quickly too.
 
-In this example, we use the 
+In the default example here, we use the 
 [patch_camelyon](https://www.tensorflow.org/datasets/catalog/patch_camelyon)
 breast-cancer detection dataset from the Tensorflow datasets to train/test a
 VGG166-based image classification model to detect metastatic tissue in
-histopathologic scans of lymph node sections.  I don't have much familiarity
-with this medical topic itself, but I have based the model configuration and
-parameters in this demo upon several [papers on the topic](#References).
-The idea is to provide a convenient template to rapidly throw together new
-models that use 
+histopathologic scans of lymph node sections.  
+While I have generally based the model configuration and
+parameters in this demo upon several [papers on the topic](#References),
+I don't have much familiarity with this medical topic itself, and have not yet
+explored or optimized the modeling here so as-is the example is currently
+overfit.  But the point here is to provide a convenient template to rapidly
+throw together new models that use 
 [Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
 running on GPUs in a [Docker](https://www.docker.com) container and log
 the results to [MLflow](https://mlflow.org) using its "Project" functionality.
