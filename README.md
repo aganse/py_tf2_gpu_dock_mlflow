@@ -23,13 +23,13 @@ In the default example here, we use the
 [patch_camelyon](https://www.tensorflow.org/datasets/catalog/patch_camelyon)
 breast-cancer detection dataset from the Tensorflow datasets to train/test a
 VGG166-based image classification model to detect metastatic tissue in
-histopathologic scans of lymph node sections.  
-While I have generally based the model configuration and
-parameters in this demo upon several [papers on the topic](#References),
-I don't have much familiarity with this medical topic itself, and have not yet
-explored or optimized the modeling here so as-is the example is currently
-overfit.  But the point here is to provide a convenient template to rapidly
-throw together new models that use 
+histopathologic scans of lymph node sections.  While I have generally based
+the model configuration and parameters in this demo upon several
+[papers on the topic](#References), I don't have much familiarity with this
+medical topic itself, nor have I yet explored or optimized the modeling here,
+so as-is the model in the example currently becomes overfit.  But the real
+point here is to provide a convenient template to rapidly throw together new
+models that use 
 [Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
 running on GPUs in a [Docker](https://www.docker.com) container and log
 the results to [MLflow](https://mlflow.org) using its "Project" functionality.
