@@ -1,7 +1,7 @@
-name: patch_camelyon_example
+name: malaria
 
 docker_env:
-  image: patch_camelyon_vgg16:latest
+  image: malaria:latest
   volumes: ["/storage:/storage"]  # contains both data and mlruns
   # environment: [["NEW_ENV_VAR", "new_var_value"], "VAR_TO_COPY_FROM_HOST_ENVIRONMENT"]
 

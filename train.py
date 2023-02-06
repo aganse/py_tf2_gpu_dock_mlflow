@@ -49,8 +49,14 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
     # IMAGE_SHAPE = (218, 178, 3)  # celeb_a
     # ds = tfds.load("beans", split=["train", "test"], data_dir="/storage/tf_data/")
     # IMAGE_SHAPE = (500, 500, 3)  # beans
-    ds = tfds.load("patch_camelyon", split=["train", "test"], data_dir="/storage/tf_data/")
-    IMAGE_SHAPE = (96, 96, 3)  # patch_camelyon
+    # ds = tfds.load("patch_camelyon", split=["train", "test"], data_dir="/storage/tf_data/")
+    # IMAGE_SHAPE = (96, 96, 3)  # patch_camelyon
+
+    # Unlike the above datasets, 'malaria' only has 'train' section so split that.
+    # Using slicing form (like [:50%]) rather than even_splits() for later flexibility.
+    ds = tfds.load("malaria", split=["train[:50%]", "train[50%:]"], data_dir="/storage/tf_data/")
+    # fyi the split usage below works on split[0] and split[1] not names.
+    IMAGE_SHAPE = (100, 100, 3)  # malaria
 
     def gen_callable(batch_size, samples, train=True):
         """ A callable function that returns a generator needed to form the
@@ -62,10 +68,10 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
                 # Settings for some other datasets (match with ds lines above):
                 # yield sample["image"]/255, tf.map_fn(lambda label: 1 if label else 0, sample["attributes"]["Smiling"], dtype=tf.int32)  # celeb_a
                 # yield sample["image"] / 255, tf.map_fn(lambda label: 1 if label == 2 else 0, sample["label"], dtype=tf.int32)  # beans
-                yield sample["image"] / 255, sample["label"]  # patch_camelyon
+                yield sample["image"] / 255, sample["label"]  # malaria
         return generator
 
-    # the keras model.fit() function doesn"t like the form of this generator
+    # the keras model.fit() function doesn't like the form of this generator
     # directly, but accepts a dataset created from it, so creating that here
     dataset = tf.data.Dataset.from_generator(
         generator=gen_callable(batch_size, samples, train),
@@ -231,7 +237,8 @@ def train_model(
         # autolog above, so "manually" specifying via log_model at end instead.
         # Similarly, run_name arg in mlflow.start_run() is not propagating to
         # mlflow.runName used by mlflow website, so manually specifying here.
-        mlflow.set_tags({"mlflow.runName": run_name})
+        mlflow.set_tags({"mlflow.run_name": run_name})
+        # mlflow.set_tags({"mlflow.runName": run_name})  # delete after confirm change works
 
         # Define the network
         model = define_network(randomize_images, convolutions)
@@ -242,6 +249,7 @@ def train_model(
         model_summary = "\n".join(stringlist)
         mlflow.log_text(model_summary, "model/model_arch.txt")
 
+        print("starting model.fit...", flush=True)
         model.fit(train_gen,
                   validation_data=valid_gen,
                   epochs=epochs,
@@ -280,12 +288,15 @@ if __name__ == "__main__":
     parser.add_argument("--run-name")
     args = parser.parse_args()
 
-    train_model(
-        batch_size=int(args.batch_size),
-        epochs=int(args.epochs),
-        convolutions=int(args.convolutions),
-        train_samples=int(args.training_samples),
-        val_samples=int(args.validation_samples),
-        randomize_images=bool(args.randomize_images),
-        run_name=args.run_name,
-    )
+    print("starting train_model...", flush=True)
+    print("using args", args, flush=True)
+    exit()
+    # train_model(
+    #     batch_size=int(args.batch_size),
+    #     epochs=int(args.epochs),
+    #     convolutions=int(args.convolutions),
+    #     train_samples=int(args.training_samples),
+    #     val_samples=int(args.validation_samples),
+    #     randomize_images=bool(args.randomize_images),
+    #     run_name=args.run_name,
+    # )

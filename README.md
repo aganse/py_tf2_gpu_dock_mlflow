@@ -20,16 +20,17 @@ environment variable per usual MLflow usage - see my
 Docker-based way to get that running quickly too.
 
 In the default example here, we use the 
-[patch_camelyon](https://www.tensorflow.org/datasets/catalog/patch_camelyon)
-breast-cancer detection dataset from the Tensorflow datasets to train/test a
-VGG166-based image classification model to detect metastatic tissue in
-histopathologic scans of lymph node sections.  While I have generally based
-the model configuration and parameters in this demo upon several
-[papers on the topic](#References), I don't have much familiarity with this
-medical topic itself, nor have I yet explored or optimized the modeling here,
-so as-is the model in the example currently becomes overfit.  But the real
-point here is to provide a convenient template to rapidly throw together new
-models that use 
+[malaria](https://www.tensorflow.org/datasets/catalog/malaria)
+detection dataset from the Tensorflow datasets to train/test a VGG166-based
+image classification model to detect malaria parasite presence
+in thin blood smear images.
+
+While I have generally based the model configuration and parameters in this
+demo upon the [original paper on the topic](#References), I don't have much
+familiarity with this medical topic itself, nor have I strongly explored or
+optimized the modeling here.
+But the real point here is to provide a convenient template to rapidly throw
+together new models that use 
 [Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
 running on GPUs in a [Docker](https://www.docker.com) container and log
 the results to [MLflow](https://mlflow.org) using its "Project" functionality.
@@ -43,10 +44,7 @@ https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-d
 template, added some new functionality (artifact logging, model registry, GPU
 capability), and generalized it a bit.
 
-<img src="./pcam.png" alt="lymph node section example images" width="60%"/><BR>
-<sup>
-[Veeling, Linmans, Winkens, Cohen, Welling - 2018](https://doi.org/10.1007/978-3-030-00934-2_24)
-</sup>
+<img src="./malaria-1.0.0.png" alt="malaria blood smear example images" width="60%"/><BR>
 
 
 ## How to install/run
@@ -123,7 +121,7 @@ MLflow server configuration), and "real" image data.
    need to do so again; on starting up work again you can re-enter the python
    environment as needed from this directory via `source .venv/bin/activate`.
 3. `make build` :  Build the docker image; super quick.
-4. `make load_tfdata` :  Download and setup the patch_camelyon dataset from
+4. `make load_tfdata` :  Download and setup the malaria dataset from
                    Tensorflow datasets.  This is only neccesary for runs using
                    a Tensorflow dataset (default example shown in this readme).
                    Note this default example dataset is 7.5GB and this step
@@ -148,12 +146,13 @@ about an issue with MLflow, not with Python or Tensorflow or Docker.
 
 ## References
 
-About this patch_camelyon breast-cancer cell detection problem:
-* <https://github.com/basveeling/pcam/blob/master/README.md#why-pcam>
-* <https://www.diva-portal.org/smash/get/diva2:1597512/FULLTEXT01.pdf>
-* <https://arxiv.org/pdf/1909.11870.pdf>
-* <https://ieeexplore.ieee.org/document/9626116>
-* <https://doi.org/10.1007/978-3-030-00934-2_24>
+About this malaria detection problem:
+* <https://www.tensorflow.org/datasets/catalog/malaria>
+* <https://peerj.com/articles/4568/?ref=https%3A%2F%2Fgithubhelp.com>
+* Rajaraman S, Antani SK, Poostchi M, Silamut K, Hossain MA, Maude RJ, Jaeger S,
+  Thoma GR. 2018. Pre-trained convolutional neural networks as feature extractors
+  toward improved malaria parasite detection in thin blood smear images.
+  PeerJ 6:e4568 <https://doi.org/10.7717/peerj.4568>
 
 About relevant Tensorflow details in particular:
 * <https://www.tensorflow.org/install/docker>
