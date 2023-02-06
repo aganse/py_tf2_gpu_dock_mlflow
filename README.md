@@ -61,6 +61,14 @@ capability), and generalized it a bit.
 5. `make build`
 6. `make load_tfdata` (if using the default tf dataset shown in this readme)
 7. `make run` (only this step requires the python env, just for mlflow cli)
+   The first thing mlflow does on starting the run is to build the docker image
+   that actually runs the project, by adding the train script and other bits on
+   top of the image built from the Dockerfile.  For this reason the run may
+   initially look like it's frozen while one cpu is pegged at 100%; but it's
+   building that new image and that takes 1-2min.
+   The resulting new image takes the name of the one created by the `make build`
+   command, and gets a hash-based label of the present git commit hash, looking
+   like `<original_image_name>:abcde123`,
 
 
 ### First, ensure your system's all ready (TL;DR steps 1-3):

@@ -1,7 +1,7 @@
 name: malaria
 
 docker_env:
-  image: malaria:latest
+  image: malaria
   volumes: ["/storage:/storage"]  # contains both data and mlruns
   # environment: [["NEW_ENV_VAR", "new_var_value"], "VAR_TO_COPY_FROM_HOST_ENVIRONMENT"]
 
