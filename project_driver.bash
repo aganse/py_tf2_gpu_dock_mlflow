@@ -19,9 +19,9 @@ mlflow run .                                            \
     -P randomize_images=True                            \
     -P convolutions=0                                   \
     -P epochs=15                                        \
-    -P batch_size=1                                     \
-    -P training_samples=10                              \
-    -P validation_samples=10
+    -P batch_size=10                                    \
+    -P training_samples=100                              \
+    -P validation_samples=100
 
     # -P batch_size=128                                 \
     # -P training_samples=13779                         \

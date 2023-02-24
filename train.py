@@ -180,7 +180,8 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
     # Using slicing form (like [:50%]) rather than even_splits() for later flexibility.
     print("setting malaria tfdataset...", flush=True)
     ds = tfds.load("malaria", split=["train[:50%]", "train[50%:]"], data_dir="/storage/tf_data/")
-    # fyi the split usage below works on split[0] and split[1] not names.
+    # Fyi the split usage below works on split[0] and split[1] not names, so it
+    # doesn't matter that the word "test" is not there.
     IMAGE_SHAPE = (100, 100, 3)  # malaria
 
     def gen_callable(batch_size, samples, train=True):
@@ -195,12 +196,26 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
                 # yield sample["image"] / 255, tf.map_fn(lambda label: 1 if label == 2 else 0, sample["label"], dtype=tf.int32)  # beans
 
                 # Randomly crop images to same size so they can be batched together:
-                # img = np.array(sample["image"])  # (W0, H0, 3) Numpy.array
-                # boxes = tf.random.uniform(shape=(NUM_BOXES, 4))
+                # https://www.tensorflow.org/api_docs/python/tf/image/crop_and_resize
+                img = np.array(sample["image"])  # (W0, H0, 3) Numpy.array
+                # boxes = tf.random.uniform(shape=(NUM_BOXES, 4))  # replace with cropsize
+                #    NUM_BOXES rows of [y1, x1, y2, x2]; these are normalize coords 0-1
+                #    ith row has coordinates of a box in the box_ind[i] image
+                boxes = np.array([[0, 0, IMAGE_SHAPE[1], IMAGE_SHAPE[0]]])  # NUM_BOXES=1; note x,y order swapped here
                 # box_indices = tf.random.uniform(shape=(NUM_BOXES,), minval=0, maxval=BATCH_SIZE, dtype=tf.int32)
-                # sample_image = tf.image.crop_and_resize(img, boxes, box_indices, CROP_SIZE)
+                #    NUM_BOXES rows with int32 values in [0,batch)
+                #    box_ind[i] specifies the image that the i-th box refers to.
+                box_indices = [0]  # NUM_BOXES=1
+                print('boxes:', boxes)
+                sample_image = tf.image.crop_and_resize(img, boxes, box_indices, (IMAGE_SHAPE[1], IMAGE_SHAPE[0]))
+                print('sample_image.size:', sample_image)
+                #    [crop_height, crop_width]. All cropped image patches are resized to this size.
+                #    tf example used (crop_height, crop_width) ie tuple.
+                #    aspect ratio not preserved.
+                #    sample_image is [num_boxes, crop_height, crop_width, depth].
 
-                yield sample["image"] / 255, sample["label"]  # malaria
+                # yield sample["image"] / 255, sample["label"]  # malaria
+                yield sample_image / 255, sample["label"]  # malaria
 
         return generator
 
