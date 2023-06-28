@@ -15,7 +15,7 @@ load_tfdata:
 	# using Tensorflow to download this dataset and nothing more.  All actual
 	# computations with Tensorflow will be inside the Docker container later, which
 	# is configured internally for GPU usage. ****
-	# NOTE this requires/assumes existence of /storage directory.
+	# NOTE this requires/assumes existence of /storage/tf_data directory.
 	# TODO add verification that dir exists first!
 	python3 load_tfdata.py
 
