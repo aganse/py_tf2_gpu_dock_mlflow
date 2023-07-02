@@ -26,3 +26,5 @@ mlflow run .                                            \
     # -P batch_size=128                                 \
     # -P training_samples=13779                         \
     # -P validation_samples=13779                              
+    # --build-image  # seems broken in mlflow 2.4.1     \
+    #                # so added pre-build line in makefile for now

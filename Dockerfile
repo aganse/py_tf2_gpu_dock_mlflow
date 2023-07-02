@@ -10,10 +10,12 @@ RUN apt-get update && apt-get install -y \
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy requirements.txt into the container
-COPY requirements.txt .
+# Copy project requirements.txt into the container
+COPY ./requirements.txt .
 
 # Install the Python dependencies
 RUN python -m pip install --upgrade pip
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+# Copy latest versions of python files into the image
+COPY ./*.py ./

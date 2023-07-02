@@ -3,6 +3,11 @@
 
 PROJECT = malaria
 
+# Default MLFLOW_TRACKING_URI if not set in environment variable uses the
+# default port for docker_mlflow_db on the linux-based docker host:
+MLFLOW_TRACKING_URI ?= http://172.17.0.1:5000
+.PHONY: all
+
 
 env:
 	# Create python environment .venv within py_tf2_gpu_dock_mlflow directory,
@@ -29,6 +34,10 @@ build:
 
 run:
 	# Run the deep learning training run in the MLflow Project
-	./project_driver.bash
-
-
+	#
+	# Unless first time building, this build should use existing image and just re-add *.py files.
+	# This is only here because --build-image in mlflow run (in project_driver.bash), which is
+	# supposed to do this, hangs with pegged cpu as of mlflow 2.4.1.  Unecesary here once fixed.
+	docker build -t $(PROJECT) .
+	#
+	MLFLOW_TRACKING_URI=$(MLFLOW_TRACKING_URI) ./project_driver.bash
