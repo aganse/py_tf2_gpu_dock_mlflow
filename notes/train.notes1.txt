@@ -1,0 +1,7 @@
+
+additional materials regarding the batching of variable-sized images (such as seen in malaria dataset):
+
+https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria/code
+https://stackoverflow.com/questions/51983716/tensorflow-input-dataset-with-varying-size-images
+https://datascience.stackexchange.com/questions/76575/varying-image-sizes-in-tensorflow-malaria-dataset-dealing-with-unclean-tensorf
+https://www.kaggle.com/code/nipunarora8/malaria-detection/notebook
