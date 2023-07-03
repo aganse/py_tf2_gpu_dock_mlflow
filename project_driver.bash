@@ -18,7 +18,7 @@ mlflow run .                                            \
     -P run_name='malaria'                               \
     -P randomize_images=True                            \
     -P convolutions=0                                   \
-    -P epochs=15                                        \
+    -P epochs=2                                        \
     -P batch_size=10                                    \
     -P training_samples=100                              \
     -P validation_samples=100

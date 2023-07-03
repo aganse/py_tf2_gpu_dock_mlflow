@@ -1,24 +1,26 @@
 import argparse
 import json
-import mlflow
-import mlflow.tensorflow
-from mlflow_callback import MlFlowCallback
-import numpy as np
 import os.path
+
+import mlflow
+from mlflow_callback import MlFlowCallback
+from mlflow.models.signature import infer_signature
+from mlflow.models import ModelSignature
+from mlflow.types.schema import Schema
+import mlflow.tensorflow
+import numpy as np
 import pandas as pd
 import sqlalchemy as sa
-
-import tensorflow_datasets as tfds
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Sequential
+import tensorflow_datasets as tfds
+from tensorflow.keras.applications import VGG16
 from tensorflow.keras.layers import Dense, Conv2D, MaxPool2D, Flatten, Input, Dropout, BatchNormalization
 from tensorflow.keras.layers.experimental.preprocessing import RandomFlip
-from tensorflow.keras.applications import VGG16
-from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import BinaryCrossentropy
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.python.saved_model import signature_constants, tag_constants
-
 from utils import CustomDataGenerator
 
 
@@ -358,12 +360,19 @@ def train_model(
 
     with mlflow.start_run(run_name=run_name):
 
-        mlflow.tensorflow.autolog()
-        # Alas log_models and registered_model_name args were not working in
-        # autolog above, so "manually" specifying via log_model at end instead.
-        # Also alas, setting run_name via arg in mlflow.start_run() STILL does
-        # not work, so must set explicitly here.  Leaving the arg up there as a
-        # reminder to recheck in future.
+        mlflow.tensorflow.autolog(
+            #registered_model_name=run_name + "_model",
+            #log_models=True,
+            log_datasets=True,
+            log_input_examples=True,
+            log_model_signatures=True,
+        )
+
+        # Alas log_models and registered_model_name args STILL not working in
+        # autolog above, even as of MLflow v2.4.1.  So "manually" specifying via
+        # log_model at end instead.  Also, setting run_name via arg
+        # in mlflow.start_run() STILL does not work either, so must set
+        # explicitly here.  Leaving this note as a reminder to recheck in future.
         mlflow.set_tags({"mlflow.runName": run_name})
 
         # Define the network
@@ -376,12 +385,33 @@ def train_model(
         mlflow.log_text(model_summary, "model/model_arch.txt")
 
         print("starting model.fit...", flush=True)
-        model.fit(train_gen,
-                  validation_data=valid_gen,
-                  epochs=epochs,
-                  steps_per_epoch=train_samples / batch_size,
-                  validation_steps=val_samples / batch_size,
-                  callbacks=[MlFlowCallback()])
+        with tf.device('/GPU:0'):
+            model.fit(train_gen,
+                validation_data=valid_gen,
+                epochs=epochs,
+                steps_per_epoch=train_samples / batch_size,
+                validation_steps=val_samples / batch_size,
+                callbacks=[MlFlowCallback()],
+            )
+
+        # Create an example batch with batch_size instances
+        example_batch = np.random.rand(batch_size, IMAGE_SHAPE[0], IMAGE_SHAPE[1], IMAGE_SHAPE[2])
+        input_schema = Schema(tf.TensorSpec(shape=example_batch.shape, dtype=tf.float32))
+        output_schema = Schema(tf.TensorSpec(shape=(batch_size, 1), dtype=tf.float32))
+        signature = ModelSignature(inputs=input_schema, outputs=output_schema)
+        #input_signature = tf.TensorSpec(shape=example_batch.shape, dtype=tf.float32)
+        #output_signature = tf.TensorSpec(shape=(batch_size, 1), dtype=tf.float32)
+        #signature = ModelSignature(inputs=input_signature, outputs=output_signature)
+
+        # Infer the signature
+        #signature = tf.keras.models.infer_signature(model, [input_signature])
+
+        mlflow.tensorflow.log_model(
+            model=model,
+            artifact_path="model",
+            signature=signature,
+        )
+
 
         # Save and register the model in the registry.
         # (weird, fyi while current mlflow version requires saved_model_dir to
@@ -389,14 +419,14 @@ def train_model(
         # whatever I set there gets overwritten by "tfmodel".  Since must have
         # something set, just simply using "tfmodel" then, no problem it's just
         # a subdir created in the mlflow run artifacts directory.)
-        tag = [tag_constants.SERVING]
-        key = signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY
-        tf.keras.models.save_model(model, "tfmodel")
-        mlflow.tensorflow.log_model(tf_saved_model_dir="tfmodel",
-                                    tf_meta_graph_tags=tag,
-                                    tf_signature_def_key=key,
-                                    artifact_path="model",
-                                    registered_model_name=run_name + "_model")
+        #tag = [tag_constants.SERVING]
+        #key = signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY
+        #tf.keras.models.save_model(model, "tfmodel")
+        #mlflow.tensorflow.log_model(tf_saved_model_dir="tfmodel",
+        #                            tf_meta_graph_tags=tag,
+        #                            tf_signature_def_key=key,
+        #                            artifact_path="model",
+        #                            registered_model_name=run_name + "_model")
 
 
 if __name__ == "__main__":
