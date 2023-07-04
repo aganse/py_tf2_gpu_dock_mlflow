@@ -163,6 +163,8 @@ About this malaria detection problem:
   PeerJ 6:e4568 <https://doi.org/10.7717/peerj.4568>
 
 About relevant Tensorflow details in particular:
+* if updating versions, must match TF version to CUDA and python versions:
+  <https://www.tensorflow.org/install/source#gpu>
 * <https://www.tensorflow.org/install/docker>
 * <https://www.tensorflow.org/guide/keras/preprocessing_layers>
 * <https://www.tensorflow.org/api_docs/python/tf/keras/metrics>

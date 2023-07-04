@@ -18,13 +18,14 @@ mlflow run .                                            \
     -P run_name='malaria'                               \
     -P randomize_images=True                            \
     -P convolutions=0                                   \
-    -P epochs=2                                        \
-    -P batch_size=10                                    \
-    -P training_samples=100                              \
-    -P validation_samples=100
+    -P epochs=15                                        \
+    -P batch_size=128                                   \
+    -P training_samples=13779                           \
+    -P validation_samples=13779
 
-    # -P batch_size=128                                 \
-    # -P training_samples=13779                         \
-    # -P validation_samples=13779                              
-    # --build-image  # seems broken in mlflow 2.4.1     \
-    #                # so added pre-build line in makefile for now
+    # --build-image  # seems broken in mlflow 2.4.1 so  \
+    #                # added pre-build line in makefile for now
+    # -P batch_size=10                                  \
+    # -P training_samples=100                           \
+    # -P validation_samples=100
+

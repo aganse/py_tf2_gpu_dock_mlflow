@@ -1,5 +1,7 @@
 import argparse
 import json
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # turn off TF's tons of "debug info" and "warnings"
 import os.path
 
 import mlflow
@@ -385,23 +387,19 @@ def train_model(
         mlflow.log_text(model_summary, "model/model_arch.txt")
 
         print("starting model.fit...", flush=True)
-        with tf.device('/GPU:0'):
-            model.fit(train_gen,
-                validation_data=valid_gen,
-                epochs=epochs,
-                steps_per_epoch=train_samples / batch_size,
-                validation_steps=val_samples / batch_size,
-                callbacks=[MlFlowCallback()],
-            )
+        model.fit(train_gen,
+            validation_data=valid_gen,
+            epochs=epochs,
+            steps_per_epoch=train_samples / batch_size,
+            validation_steps=val_samples / batch_size,
+            callbacks=[MlFlowCallback()],
+        )
 
         # Create an example batch with batch_size instances
-        example_batch = np.random.rand(batch_size, IMAGE_SHAPE[0], IMAGE_SHAPE[1], IMAGE_SHAPE[2])
-        input_schema = Schema(tf.TensorSpec(shape=example_batch.shape, dtype=tf.float32))
-        output_schema = Schema(tf.TensorSpec(shape=(batch_size, 1), dtype=tf.float32))
-        signature = ModelSignature(inputs=input_schema, outputs=output_schema)
-        #input_signature = tf.TensorSpec(shape=example_batch.shape, dtype=tf.float32)
-        #output_signature = tf.TensorSpec(shape=(batch_size, 1), dtype=tf.float32)
-        #signature = ModelSignature(inputs=input_signature, outputs=output_signature)
+        #example_batch = np.random.rand(batch_size, IMAGE_SHAPE[0], IMAGE_SHAPE[1], IMAGE_SHAPE[2])
+        #input_schema = Schema([tf.TensorSpec(shape=example_batch.shape, dtype=tf.float32)])
+        #output_schema = Schema([tf.TensorSpec(shape=(batch_size, 1), dtype=tf.float32)])
+        #signature = ModelSignature(inputs=input_schema, outputs=output_schema)
 
         # Infer the signature
         #signature = tf.keras.models.infer_signature(model, [input_signature])
@@ -409,7 +407,8 @@ def train_model(
         mlflow.tensorflow.log_model(
             model=model,
             artifact_path="model",
-            signature=signature,
+            pip_requirements="requirements.txt",
+            #signature=signature,
         )
 
 
