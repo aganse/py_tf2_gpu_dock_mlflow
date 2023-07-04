@@ -182,7 +182,6 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
 
     # Unlike the above datasets, 'malaria' only has 'train' section so split that.
     # Using slicing form (like [:50%]) rather than even_splits() for later flexibility.
-    print("setting malaria tfdataset...", flush=True)
     ds = tfds.load("malaria", split=["train[:50%]", "train[50%:]"], data_dir="/storage/tf_data/")
     # Fyi the split usage below works on split[0] and split[1] not names, so it
     # doesn't matter that the word "test" is not there.
