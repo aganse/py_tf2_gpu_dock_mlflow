@@ -14,11 +14,11 @@
 mlflow run .                                            \
     -A gpus=all                                         \
     -b local                                            \
-    --experiment-name='Test/Debug'                      \
+    --experiment-name='Malaria Detection'               \
     -P run_name='malaria'                               \
     -P randomize_images=True                            \
     -P convolutions=0                                   \
-    -P epochs=15                                        \
+    -P epochs=10                                        \
     -P batch_size=128                                   \
     -P training_samples=13779                           \
     -P validation_samples=13779

@@ -26,12 +26,10 @@ from tensorflow.python.saved_model import signature_constants, tag_constants
 from utils import CustomDataGenerator
 
 
-# This IMAGE_SHAPE is used globally, but this initialized value is only used
-# in two of the three use-cases in the define_data_generator() wrapper:
-# define_data_generator_dataframe() and define_data_generator_imagedir(), which
-# allow image resizing to this size.  But define_data_generator_tfdataset()
-# overwrites this initialized value for IMAGE_SHAPE to that of the tf dataset.
-# We should add that resizing to the define_data_generator_tfdataset() as well.
+# This IMAGE_SHAPE is used globally: in the define_data_generators which resize
+# the image to this size (particularly for datasets with images of varying sizes)
+# and in the define_network function where the input layer is defined, and in
+# the model signature definition for logging the model in the MLflow registry.
 IMAGE_SHAPE = (128, 128, 3)
 
 
@@ -180,7 +178,7 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
     # ds = tfds.load("patch_camelyon", split=["train", "test"], data_dir="/storage/tf_data/")
     # IMAGE_SHAPE = (96, 96, 3)  # patch_camelyon
 
-    # Unlike the above datasets, 'malaria' only has 'train' section so split that.
+    # Unlike the above datasets, 'malaria' only has 'train' section so we split that.
     # Using slicing form (like [:50%]) rather than even_splits() for later flexibility.
     ds = tfds.load("malaria", split=["train[:50%]", "train[50%:]"], data_dir="/storage/tf_data/")
     # Fyi the split usage below works on split[0] and split[1] not names, so it
@@ -188,13 +186,11 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
     IMAGE_SHAPE = (100, 100, 3)  # malaria
 
     def gen_callable(train=True):
-    #def gen_callable(batch_size, samples, train=True):
         """ A callable function that returns a generator needed to form the
         dataset. """
         tindex = 0 if train else 1
 
         def generator():
-            #for sample in ds[tindex].take(samples).batch(batch_size).repeat():
             for sample in ds[tindex]:
                 # Settings for some other datasets (match with ds lines above):
                 # yield sample["image"] / 255, tf.map_fn(lambda label: 1 if label else 0, sample["attributes"]["Smiling"], dtype=tf.int32)  # celeb_a
@@ -220,9 +216,6 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
                 # #    aspect ratio not preserved.
                 # #    sample_image is [num_boxes, crop_height, crop_width, depth].
 
-                # Trying this in its place:
-                # for image, label in zip(sample["image"], sample["label"]):
-
                 resized_image = tf.image.resize(sample["image"], [IMAGE_SHAPE[0], IMAGE_SHAPE[1]])
                 yield resized_image/ 255, sample["label"]  # malaria
 
@@ -232,38 +225,13 @@ def define_data_generator_tfdataset(batch_size, samples, train=True):
     # directly, but accepts a dataset created from it, so creating that here
     dataset = tf.data.Dataset.from_generator(
         generator=gen_callable(train),
-        # generator=gen_callable(batch_size, samples, train),
-        # output_types=(tf.uint8, tf.uint8),
         output_types=(tf.float32, tf.uint8),
         output_shapes=(
-            #tf.TensorShape([batch_size, IMAGE_SHAPE[0], IMAGE_SHAPE[1], IMAGE_SHAPE[2]]),
             tf.TensorShape([IMAGE_SHAPE[0], IMAGE_SHAPE[1], IMAGE_SHAPE[2]]),
             tf.TensorShape([])
-            #tf.TensorShape([batch_size])
-            #
-            # tf.TensorShape([None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], IMAGE_SHAPE[2]]),
-            # tf.TensorShape([None])
         )
     )
     return dataset.batch(batch_size).repeat()
-    #return dataset
-
-    # Or when datasets contain differently-sized images (eg the malaria example),
-    # those can't be batched together as above, so here's an approach that makes
-    # batches of one; however note this is really inefficient...
-    # reference:
-    # https://stackoverflow.com/questions/51983716/tensorflow-input-dataset-with-varying-size-images
-    # and useful summary of this issue:
-    # https://stats.stackexchange.com/questions/388859/is-it-possible-to-give-variable-sized-images-as-input-to-a-convolutional-neural
-    #
-    # dataset = tf.data.Dataset.from_generator(
-    #     generator=gen_callable(batch_size, samples, train),
-    #     output_types=(tf.uint8, tf.uint8),
-    #     output_shapes=(tf.TensorShape([1, None, None, 3]), tf.TensorShape([1, None]))
-    # )
-    # dataset = dataset.repeat()
-    # iterator = dataset.make_one_shot_iterator()
-    # return iterator.get_next()
 
 
 def define_dataframe():
@@ -300,7 +268,7 @@ def define_network(randomize_images, convolutions):
     model.add(Input(shape=IMAGE_SHAPE))
     if randomize_images:
         model.add(RandomFlip())
-    if convolutions == 0:  # 0 is flag to use vgg16
+    if convolutions == 0:  # this 0 is flag to use vgg16
         VGG16_MODEL = VGG16(
             input_shape=IMAGE_SHAPE,
             include_top=False,
@@ -328,8 +296,6 @@ def define_network(randomize_images, convolutions):
         model.add(Flatten())
         model.add(Dense(1, activation="sigmoid"))
 
-    # for l in model.layers:
-    #     print(l.name, l.trainable)
 
     model.compile(
         optimizer=Adam(learning_rate=0.001),
