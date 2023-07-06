@@ -1,8 +1,11 @@
 """
+This module supports the define_data_generator_dataframe_custom() function in
+train.py.  Sorry still really messy; work in progress...  -AG
+
 Define bespoke TF data generator for images that require custom data-loading
 processes to access (as opposed to just being in jpg/png/etc files).
 
-with credit to Arjun Muraleedharan's Apr 2021 post in Medium:
+With credit to Arjun Muraleedharan's Apr 2021 post in Medium:
 https://medium.com/analytics-vidhya/write-your-own-custom-data-generator-for-tensorflow-keras-1252b64e41c3
 and Deepak Raj's Sept 2021 post in StackOverflow:
 https://stackoverflow.com/questions/63827339/how-to-build-a-custom-data-generator-for-keras-tf-keras-where-x-images-are-being

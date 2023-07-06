@@ -1,4 +1,5 @@
 # py_tf2_gpu_dock_mlflow
+
 _**Get new Python/Tensorflow/GPU models running quickly, and logging
 performance and resulting model in MLflow, keeping everything in Docker via
 MLflow Projects.**_
@@ -6,13 +7,14 @@ MLflow Projects.**_
 This is an example Python/Tensorflow2 setup using GPU and MLflow in a docker
 container.  Python3, Tensorflow2, and the NVidia/GPU handling are entirely in
 the container; the host system only needs the Nvidia driver and Docker
-installed, and currently one runs the `mlflow run` script in a python
-environment that has the `mlflow` package installed in it, purely for the
-MLflow CLI to connect to your remote MLflow server and feed the MLproject to
-the Docker container.  With those and just the `project_driver.bash` script,
-technically you don't even need to clone this repo; you can reference it at
-the top of that script.  But presumably the point is that you want to adapt
-this repo's content to your own project - so, you know, clone the repo.  ;-)
+installed.
+Currently one runs the `mlflow run` script in a python environment that has
+the `mlflow` package installed in it, purely for the MLflow CLI to connect to
+your remote MLflow server and feed the MLproject to the Docker container.
+With those and just the `project_driver.bash` script, technically you don't
+even need to clone this repo; you could reference it at the top of that script.
+But presumably the point is that you want to adapt this repo's content to your
+own project - so, you know, clone the repo.  ;-)
 
 An MLflow instance is looked for at the address in the `MLFLOW_TRACKING_URI`
 environment variable per usual MLflow usage - see my 
