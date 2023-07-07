@@ -4,47 +4,34 @@ _**Get new Python/Tensorflow/GPU models running quickly, and logging
 performance and resulting model in MLflow, keeping everything in Docker via
 MLflow Projects.**_
 
-This is an example Python/Tensorflow2 setup using GPU and MLflow in a docker
-container.  Python3, Tensorflow2, and the NVidia/GPU handling are entirely in
-the container; the host system only needs the Nvidia driver and Docker
-installed.
-Currently one runs the `mlflow run` script in a python environment that has
-the `mlflow` package installed in it, purely for the MLflow CLI to connect to
-your remote MLflow server and feed the MLproject to the Docker container.
-With those and just the `project_driver.bash` script, technically you don't
-even need to clone this repo; you could reference it at the top of that script.
-But presumably the point is that you want to adapt this repo's content to your
-own project - so, you know, clone the repo.  ;-)
+This [Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
+setup uses [MLflow](https://mlflow.org) with the GPU in a
+[Docker](https://www.docker.com) container to train, evaluate, and log TF2
+models to MLflow's model registry.  Logged models can be easily served via
+REST API or downloaded from the registry into python code or their own new
+Docker image for further use.
 
-An MLflow instance is looked for at the address in the `MLFLOW_TRACKING_URI`
-environment variable per usual MLflow usage - see my 
-[docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo for an easy
-Docker-based way to get that running quickly too.
+The training computation itself is handled entirely in the container; for
+that the host system only needs the Nvidia driver and Docker installed.
+However, currently to kick off the training one still needs a Python
+environment with MLflow installed (and a clone of this repo assuming you want
+to make your own changes to the problem).
 
-In the default example here, we use the 
+The training script includes function definitions for loading training data
+of different types (images from directory, tf-datasets, custom datafiles, etc)
+and for the neural network specification, so those things are easily
+experimented with independently of the rest of the code.  This repo's tools
+spawns a Tensorflow model training in a self-contained Docker container with GPU
+access and then logs its results and solution model into MLflow at the end so
+one has a record of runs that can be compared.
+
+In the default example implemented here, we use the 
 [malaria](https://www.tensorflow.org/datasets/catalog/malaria)
 detection dataset from the Tensorflow datasets to train/test a VGG166-based
 image classification model to detect malaria parasite presence
-in thin blood smear images.
-
-While I have generally based the model configuration and parameters in this
-demo upon the [original paper on the topic](#References), I don't have much
-familiarity with this medical topic itself, nor have I strongly explored or
-optimized the modeling here.
-But the real point here is to provide a convenient template to rapidly throw
-together new models that use 
-[Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
-running on GPUs in a [Docker](https://www.docker.com) container and log
-the results to [MLflow](https://mlflow.org) using its "Project" functionality.
-The models are logged to the MLflow registry and can be easily served via REST
-API or downloaded from the registry into python code for further use.
-
-The code and setup were initially based on [George Novack's 2020 article in
-Towards Data Science, "Create Reusable ML Modules with MLflow Projects & Docker"](
-https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-docker-33cd722c93c4)
-(thank you).  I've pulled things together into a single repo meant to use as a
-template, added some new functionality (artifact logging, model registry, GPU
-capability), and generalized it a bit.
+in thin blood smear images.  A few arbitrary other options for neural network
+definition are included in the code (follow the `convolutions` paraameter
+which is actually "number of convolutional layers in the model".
 
 <img src="./malaria-1.0.0.png" alt="malaria blood smear example images" width="60%"/><BR>
 
@@ -52,22 +39,29 @@ capability), and generalized it a bit.
 ## How to install/run
 
 ### TL;DR
-0. note this repo has been written and tested assuming running on linux or
-   macos.  it likely will not work out of the box in windows without a
-   little tweaking.
-1. have GPU and Docker already working on your system
-2. have your MLFLOW_TRACKING_URI env var pointing to a running MLflow server
-3. have your MLflow server's artifact storage directory and your data files
-   accessible somewhere within /storage (which is volume-mapped into container)
+0. note this repo has been written and tested assuming running on linux.
+   it likely will not work out of the box in windows.
+1. have GPU and Docker already working on your system.  one option is starting
+   the AWS instance described below and prepping it with the aws_ec2_install.bash
+   script, but that's just an option, not necessary.
+2. have your MLFLOW_TRACKING_URI env var pointing to a running MLflow server.
+   one option is installing and starting the Dockerized MLflow server
+   [docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) that is
+   installed in the aws_ec2_install.bash script.  but that's just an option,
+   another MLflow server is fine too (must be version 2+).
+3. either have your MLflow server's artifact storage directory and data files
+   accessible somewhere within /storage/mlruns (which is volume-mapped into the
+   container), or your MLflow instance configured to hold everything in S3.
 4. git clone <this repo>, cd into it, create python env via `make env`
-5. `make build`
-6. `make load_tfdata` (if using the default tf dataset shown in this readme)
-7. `make run` (only this step requires the python env, just for mlflow cli)
-   The first thing mlflow does on starting the run is to build the docker image
-   that actually runs the project, by adding the train script and other bits on
-   top of the image built from the Dockerfile.  For this reason the run may
-   initially look like it's frozen while one cpu is pegged at 100%; but it's
-   building that new image and that takes 1-2min.
+5. enter the python environment that was just made:  `source .venv/bin/activate`.
+6. `make load_tfdata` (if using the default tf dataset shown in this readme) to
+   download the data to /storage/tfdata.
+8. then `make build` to create the training Docker container.
+9. then `make run` (only this step requires the python env, just for mlflow cli).
+   The first thing mlflow does on starting the run is to add the latest state of
+   the train script and other files on top of the image built from the Dockerfile.
+   For this reason the run may initially look like it's frozen while one cpu is
+   pegged at 100%; but it's building that new image and that takes several minutes.
    The resulting new image takes the name of the one created by the `make build`
    command, and gets a hash-based label of the present git commit hash, looking
    like `<original_image_name>:abcde123`,
@@ -122,6 +116,19 @@ in my setup I have `/storage/tf_data`, `/storage/mlruns`, and `/storage/data`
 for my Tensorflow datasets, MLflow artifacts store (determined in the remote
 MLflow server configuration), and "real" image data.
 
+
+To kick off a training, you run the `mlflow run` script in a python environment
+that has the `mlflow` package installed in it, purely for the MLflow CLI to
+connect to your remote MLflow server and feed the MLproject to the Docker container.
+With those and just the `project_driver.bash` script, technically you don't
+even need to clone this repo; you could reference it at the top of that script.
+But presumably the point is that you want to adapt this repo's content to your
+own project - so, you know, clone the repo.  ;-)
+
+An MLflow instance is looked for at the address in the `MLFLOW_TRACKING_URI`
+environment variable per usual MLflow usage - see my 
+[docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo for an easy
+Docker-based way to get that running quickly too.
 
 ### Then follow these steps to run things (TL;DR steps 4-7):
 
@@ -184,3 +191,11 @@ About additional computational tools used here (Docker, MLflow, etc):
 * <https://stackoverflow.com/questions/48309631/tensorflow-tf-data-dataset-reading-large-hdf5-files>
 * <https://github.com/tensorflow/io/issues/174>  (looks like TF-IO has built-in HDF5 reader?)
 
+
+
+The code and setup were initially based on [George Novack's 2020 article in
+Towards Data Science, "Create Reusable ML Modules with MLflow Projects & Docker"](
+https://towardsdatascience.com/create-reusable-ml-modules-with-mlflow-projects-docker-33cd722c93c4)
+(thank you).  I've pulled things together into a single repo meant to use as a
+template, added some new functionality (artifact logging, model registry, GPU
+capability), and generalized it a bit.
