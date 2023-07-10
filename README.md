@@ -94,6 +94,7 @@ MLFlow instance, something like this.  When you click on the metrics links in ea
 
 <P float="left">
 <img src="./mlflow_runs.png" alt="MLflow logged run example image" width="100%"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="./mlflow_run3.png" alt="MLflow logged run example image" width="45%"/><img src="./mlflow_run0.png" alt="MLflow logged run example image" width="45%"/>
 </P>
 
