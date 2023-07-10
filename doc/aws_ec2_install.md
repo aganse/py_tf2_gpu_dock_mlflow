@@ -1,7 +1,7 @@
 ### Get this stuff running quickly on AWS
 Here are step-by-step instructions to kick off a low-cost AWS GPU instance and use the aws_ec2_install.bash script to quickly set it up to run this py_tf2_gpu_dock_mlflow repo with the MLflow setup from the docker_mlflow_db repo (assuming you already have an AWS account).
 
-![screenshot of an AWS provisioning screen](aws_provisioning.png)
+<IMG SRC="aws_provisioning.png" ALT="screenshot of an AWS provisioning screen" WIDTH=200>
 
 
 1. The following assumes you already have an AWS account and at least know basic navigation within it to follow these instructions - just take a quick read below to make sure before launching into things.
