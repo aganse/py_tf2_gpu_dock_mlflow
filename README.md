@@ -35,8 +35,10 @@ which is actually "number of convolutional layers in the model").
 
 <P float="left">
 <img src="./malaria-1.0.0a.png" alt="malaria blood smear example images" width=450/>
-<img src="./malaria-1.0.0b.png" alt="malaria blood smear example images" style="margin-left:25px" width=125/>
-<img src="./malaria-1.0.0c.png" alt="malaria blood smear example images" style="margin-left:25px" width=130/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="./malaria-1.0.0b.png" alt="malaria blood smear example images" width=125/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="./malaria-1.0.0c.png" alt="malaria blood smear example images" width=130/>
 </P>
 
 
