@@ -4,10 +4,15 @@ _**Get new Python/Tensorflow/GPU models running quickly, and logging
 performance and resulting model in MLflow, keeping everything in Docker via
 MLflow Projects.**_
 
+> Note to get running quickly you may also find it useful to use this repo with
+> the MLflow implementation in my
+> [docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo.
+> More on that below as an option.
+
 This [Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
-setup uses [MLflow](https://mlflow.org) with the GPU in a
-[Docker](https://www.docker.com) container to train, evaluate, and log TF2
-models to MLflow's model registry.  Logged models can be easily served via
+setup uses [MLflow](https://mlflow.org) with GPU runs in a
+[Docker](https://www.docker.com) container to train, evaluate, and log models
+to MLflow's model registry.  Logged models can then be easily served via
 REST API or downloaded from the registry into python code or their own new
 Docker image for further use.
 
@@ -15,7 +20,7 @@ The training computation itself is handled entirely in the container; for
 that the host system only needs the Nvidia driver and Docker installed.
 However, currently to kick off the training one still needs a Python
 environment with MLflow installed (and a clone of this repo assuming you want
-to make your own changes to the problem).
+to make your own changes to the model or data).
 
 The training script includes function definitions for loading training data
 of different types (images from directory, tf-datasets, custom datafiles, etc)
@@ -29,136 +34,81 @@ In the default example implemented here, we use the
 [malaria](https://www.tensorflow.org/datasets/catalog/malaria)
 detection dataset from the Tensorflow datasets to train/test a VGG166-based
 image classification model to detect malaria parasite presence
-in thin blood smear images.  A few arbitrary other options for neural network
-definition are included in the code (follow the `convolutions` paraameter
-which is actually "number of convolutional layers in the model".
+in thin blood smear images.  A few options for alternate neural network
+definitions are included in the code (see the `convolutions` parameter
+which is actually "number of convolutional layers in the model").
 
-<img src="./malaria-1.0.0.png" alt="malaria blood smear example images" width="60%"/><BR>
+<img src="./malaria-1.0.0a.png" alt="malaria blood smear example images" width=450/>
+<img src="./malaria-1.0.0b.png" alt="malaria blood smear example images" style="margin-left:25px" width=125/>
+<img src="./malaria-1.0.0c.png" alt="malaria blood smear example images" style="margin-left:25px" width=130/><BR>
 
 
 ## How to install/run
 
-### TL;DR
-0. note this repo has been written and tested assuming running on linux.
-   it likely will not work out of the box in windows.
-1. have GPU and Docker already working on your system.  one option is starting
-   the AWS instance described below and prepping it with the aws_ec2_install.bash
-   script, but that's just an option, not necessary.
-2. have your MLFLOW_TRACKING_URI env var pointing to a running MLflow server.
-   one option is installing and starting the Dockerized MLflow server
-   [docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) that is
-   installed in the aws_ec2_install.bash script.  but that's just an option,
-   another MLflow server is fine too (must be version 2+).
-3. either have your MLflow server's artifact storage directory and data files
-   accessible somewhere within /storage/mlruns (which is volume-mapped into the
-   container), or your MLflow instance configured to hold everything in S3.
-4. git clone <this repo>, cd into it, create python env via `make env`
+Note this repo has been written and tested assuming running on Linux.
+It will almost surely will not work out of the box in Windows.
+
+**Option #1:**  follow [this lowdown](doc/aws_ec2_install.md) to kick off a low-cost AWS GPU instance and use the aws_ec2_install.bash script to quickly set it up to run this py_tf2_gpu_dock_mlflow repo with the MLflow setup from the [docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo (assuming you already have an AWS account).
+
+**Option #2:**  follow the general approach here:
+
+1. have GPU and Docker already working on your system (e.g. make sure [these checks](doc/check_gpu_docker.md) work).
+2. have your MLFLOW_TRACKING_URI environment var pointing to a running MLflow 
+   server, which must be running version 2+.  For example you might use a bash
+   line like this to set that:
+   `export MLFLOW_TRACKING_URI=http://localhost:5000`.  You might like to put
+   that in your shell resource file (.bashrc for example).
+3. either have your MLflow server's artifact storage directory accessible within 
+   `/storage/mlruns` (noting that `/storage` is volume-mapped into the container - 
+   see `MLproject` file), or your MLflow instance configured to hold everything in 
+   S3.
+4. have your data files accessible somewhere within `/storage` (which is 
+   volume-mapped into the container - see `MLproject` file).  For example, for 
+   this repo's default malaria problem the dataset is stored in `/storage/tfdata`.
+4. git clone this repo, cd into it, create python env via `make env`
 5. enter the python environment that was just made:  `source .venv/bin/activate`.
 6. `make load_tfdata` (if using the default tf dataset shown in this readme) to
    download the data to /storage/tfdata.
 8. then `make build` to create the training Docker container.
-9. then `make run` (only this step requires the python env, just for mlflow cli).
-   The first thing mlflow does on starting the run is to add the latest state of
-   the train script and other files on top of the image built from the Dockerfile.
-   For this reason the run may initially look like it's frozen while one cpu is
-   pegged at 100%; but it's building that new image and that takes several minutes.
+9. then `make run` (only this step actually requires the python env, just for 
+   mlflow cli).  The first thing mlflow does on starting the run is to add the 
+   latest state of the train script and other files on top of the image built from
+   the Dockerfile.  For this reason the run may initially look like it's frozen 
+   while one cpu is pegged at 100%; but it's building that new image which
+   takes several minutes.
    The resulting new image takes the name of the one created by the `make build`
-   command, and gets a hash-based label of the present git commit hash, looking
-   like `<original_image_name>:abcde123`,
+   command, appended with a hash-based label of the present git commit hash, 
+   looking something like `<original_image_name>:4e23a5b`.
+   
+Note that `make run` just kicks off the `project_driver.bash` script.  It might
+   be useful to know that once you've got the repo forked in your own account and
+   updated to suit your needs, technically you don't even need to clone the repo 
+   anymore to run your trainings - you can reference your repo URL or your
+   pre-made remote docker image in the `mlflow run` command at the top of the 
+   `project_driver.bash` script.  The
+   [MLflow Projects](https://mlflow.org/docs/latest/projects.html) documentation
+   has more about that; just something to think about.
 
 
-### First, ensure your system's all ready (TL;DR steps 1-3):
-Per [Google's Tensorflow Docker documentation](https://www.tensorflow.org/install/docker),
-check that your NVidia GPU device is present:
-```
-> lspci | grep -i nvidia
-01:00.0 VGA compatible controller: NVIDIA Corporation TU104 [GeForce RTX 2080 SUPER] (rev a1)
-01:00.1 Audio device: NVIDIA Corporation TU104 HD Audio Controller (rev a1)
-01:00.2 USB controller: NVIDIA Corporation TU104 USB 3.1 Host Controller (rev a1)
-01:00.3 Serial bus controller [0c80]: NVIDIA Corporation TU104 USB Type-C UCSI Controller (rev a1)
-```
-Then verify your nvidia-docker installation, e.g.:
-```
-> docker run --gpus all --rm nvidia/cuda nvidia-smi
-Sun Jun  5 16:31:20 2022
-+-----------------------------------------------------------------------------+
-| NVIDIA-SMI 470.103.01   Driver Version: 470.103.01   CUDA Version: 11.4     |
-|-------------------------------+----------------------+----------------------+
-| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
-|                               |                      |               MIG M. |
-|===============================+======================+======================|
-|   0  NVIDIA GeForce ...  On   | 00000000:01:00.0 Off |                  N/A |
-| 18%   26C    P8     4W / 250W |    134MiB /  7982MiB |      0%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
+Once the run is in progress, you should find metrics progress logging in your
+MLFlow instance, something like this.  When you click on the metrics links in each run you can see plots over the epochs.<BR>
 
-+-----------------------------------------------------------------------------+
-| Processes:                                                                  |
-|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
-|        ID   ID                                                   Usage      |
-|=============================================================================|
-+-----------------------------------------------------------------------------+
-```
-If any trouble with those, that 
-[Google Tensorflow Docker documentation](https://www.tensorflow.org/install/docker)
-is really helpful.
+<img src="./mlflow_runs.png" alt="MLflow logged run example image" width="100%"/>
+<img src="./mlflow_run3.png" alt="MLflow logged run example image" width="45%"/>
+<img src="./mlflow_run0.png" alt="MLflow logged run example image" width="45%"/>
+<P>
 
-Lastly set your MLFLOW_TRACKING_URI to whatever address you use for it, e.g.:
-```
-export MLFLOW_TRACKING_URI=http://localhost:5000
-```
-You might want to put that in your shell resource file (.bashrc for example).
+We can see how the transfer-learned VGG16 model does better than the other models tried above, and how it converges faster.  It's not quite a fair comparison though, because the VGG16 run used transfer-learning to perturb pre-trained (Imagenet) weights for this problem, whereas the other (albeit smaller) models were trained from scratch.  You'll find in the `define_network()` function in `train.py` that some extra layers were added to the end of the VGG16 network; this was to allow exploring different variations in transfer-learning and fine-tuning.  Of course you can replace all that with whatever you wish.
 
-As far as filesystem directories available, `/storage` is mapped into the
-container (which can of course be changed to match your setup), so for example
-in my setup I have `/storage/tf_data`, `/storage/mlruns`, and `/storage/data`
-for my Tensorflow datasets, MLflow artifacts store (determined in the remote
-MLflow server configuration), and "real" image data.
-
-
-To kick off a training, you run the `mlflow run` script in a python environment
-that has the `mlflow` package installed in it, purely for the MLflow CLI to
-connect to your remote MLflow server and feed the MLproject to the Docker container.
-With those and just the `project_driver.bash` script, technically you don't
-even need to clone this repo; you could reference it at the top of that script.
-But presumably the point is that you want to adapt this repo's content to your
-own project - so, you know, clone the repo.  ;-)
-
-An MLflow instance is looked for at the address in the `MLFLOW_TRACKING_URI`
-environment variable per usual MLflow usage - see my 
-[docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo for an easy
-Docker-based way to get that running quickly too.
-
-### Then follow these steps to run things (TL;DR steps 4-7):
-
-1. git clone this repo and cd into it.
-2. generate a python env, activate that env, and install mlflow into it.
-   This can be done with `make env`.  After running that once, you don't
-   need to do so again; on starting up work again you can re-enter the python
-   environment as needed from this directory via `source .venv/bin/activate`.
-3. `make build` :  Build the docker image; super quick.
-4. `make load_tfdata` :  Download and setup the malaria dataset from
-                   Tensorflow datasets.  This is only neccesary for runs using
-                   a Tensorflow dataset (default example shown in this readme).
-                   Note this default example dataset is 7.5GB and this step
-                   can take a little while, but it's a one-time event.
-5. `make run`   :  Run the training, which will progressively log state into
-                   mlflow.  This too can take a while.  For context, on a
-                   NVIDIA GeForce RTX 2080 SUPER it took about two hours.
-
-Once the run is running, you should find metrics progress logging in your
-MLFlow instance, something like this (yes this example is totally overfit):<BR>
-<img src="./mlflow_run.png" alt="MLflow logged run example image" width="60%"/>
-
-The `make run` macro runs the `project_driver.bash` shell script, but a Python
-script `project_driver.py` with mostly-corresponding functionality is included
-here too.  However, importantly note:  as of this writing, it appears that GPU
-usage can only be done for models in Docker containers in MLFlow Projects if
-using the _shell script_ call to mlflow.  I.e. the shell command `mlflow` now
-just recently takes a `gpus=all` argument, whereas the Python
-`mlflow.projects.run()` method still does not do so yet.  Note that's strictly
-about an issue with MLflow, not with Python or Tensorflow or Docker.
+Lastly: the `make run` macro runs the `project_driver.bash` shell script, but a 
+Python script `project_driver.py` with mostly-corresponding functionality is 
+left in here too from my experimentation.  However, importantly note:  as of this 
+writing, while the python entry point allows to kick off multiple concurrent runs 
+which is cool, it appears that GPU usage in Docker containers in MLFlow Projects 
+can only be done if using the CLI (shell script) call to MLflow.  I.e. the shell
+command `mlflow` finally now takes a `--gpus=all` argument, but the Python
+`mlflow.projects.run()` method still does not have an equivalent yet.  That's 
+strictly about an issue with MLflow, not with Python or Tensorflow or Docker.
 
 
 ## References
@@ -190,8 +140,6 @@ About additional computational tools used here (Docker, MLflow, etc):
 * <https://cosminsanda.com/posts/experiment-tracking-with-mlflow-inside-amazon-sagemaker>
 * <https://stackoverflow.com/questions/48309631/tensorflow-tf-data-dataset-reading-large-hdf5-files>
 * <https://github.com/tensorflow/io/issues/174>  (looks like TF-IO has built-in HDF5 reader?)
-
-
 
 The code and setup were initially based on [George Novack's 2020 article in
 Towards Data Science, "Create Reusable ML Modules with MLflow Projects & Docker"](
