@@ -34,11 +34,11 @@ definitions are included in the code (see the `convolutions` parameter
 which is actually "number of convolutional layers in the model").
 
 <P float="left">
-<img src="./malaria-1.0.0a.png" alt="malaria blood smear example images" width=450/>
+<img src="doc/malaria-1.0.0a.png" alt="malaria blood smear example images" width=450/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="./malaria-1.0.0b.png" alt="malaria blood smear example images" width=125/>
+<img src="doc/malaria-1.0.0b.png" alt="malaria blood smear example images" width=125/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="./malaria-1.0.0c.png" alt="malaria blood smear example images" width=130/>
+<img src="doc/malaria-1.0.0c.png" alt="malaria blood smear example images" width=130/>
 </P>
 
 
@@ -93,10 +93,10 @@ Once the run is in progress, you should find metrics progress logging in your
 MLFlow instance, something like this.  When you click on the metrics links in each run you can see plots over the epochs.<BR>
 
 <P float="left">
-<img src="./mlflow_runs.png" alt="MLflow logged run example image" width="100%"/>
-<img src="./mlflow_run3.png" alt="MLflow logged run example image" width="45%"/>
+<img src="doc/mlflow_runs.png" alt="MLflow logged run example image" width="100%"/>
+<img src="doc/mlflow_run3.png" alt="MLflow logged run example image" width="45%"/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="./mlflow_run0.png" alt="MLflow logged run example image" width="45%"/>
+<img src="doc/mlflow_run0.png" alt="MLflow logged run example image" width="45%"/>
 </P>
 
 We can see how the transfer-learned VGG16 model does better than the other models tried above, and how it converges faster.  It's not quite a fair comparison though, because the VGG16 run used transfer-learning to perturb pre-trained (Imagenet) weights for this problem, whereas the other (albeit smaller) models were trained from scratch.  You'll find in the `define_network()` function in `train.py` that some extra layers were added to the end of the VGG16 network; this was to allow exploring different variations in transfer-learning and fine-tuning.  Of course you can replace all that with whatever you wish.
