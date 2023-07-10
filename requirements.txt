@@ -1,4 +1,5 @@
-mlflow
-matplotlib
-tensorflow-gpu
-tensorflow-datasets
+mlflow==2.4.1
+requests==2.31.0
+matplotlib==3.7.1
+tensorflow==2.12.0
+tensorflow-datasets==4.9.2

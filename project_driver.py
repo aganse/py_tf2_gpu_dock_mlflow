@@ -6,7 +6,7 @@ mlflow.projects.run(
     synchronous=False,
     experiment_name='Test/Debug',
     parameters={
-        'run_name': 'patch_camelyon',
+        'run_name': 'malaria',
         'batch_size': 128,
         'epochs': 15,
         'convolutions': 0,
