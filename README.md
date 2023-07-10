@@ -1,18 +1,8 @@
 # py_tf2_gpu_dock_mlflow
 
-<TABLE border=0>
-<TR><TD width=60%>
 _**Get new Python/Tensorflow/GPU models running quickly, and logging
 performance and resulting model in MLflow, keeping everything in Docker via
 MLflow Projects.**_
-</TD><TD width=10%>
-</TD><TD width=30%>
-> Note to get running quickly you may also find it useful to use this repo with
-> the MLflow implementation in my
-> [docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo.
-> More on that below as an option.
-</TD></TR>
-</TABLE>
 
 This [Python](https://www.python.org)/[Tensorflow2](https://www.tensorflow.org)
 setup uses [MLflow](https://mlflow.org) with GPU runs in a
@@ -43,7 +33,11 @@ in thin blood smear images.  A few options for alternate neural network
 definitions are included in the code (see the `convolutions` parameter
 which is actually "number of convolutional layers in the model").
 
-<img src="./malaria-1.0.0a.png" alt="malaria blood smear example images" width=450/><img src="./malaria-1.0.0b.png" alt="malaria blood smear example images" style="margin-left:25px" width=125/><img src="./malaria-1.0.0c.png" alt="malaria blood smear example images" style="margin-left:25px" width=130/><BR>
+<P float="left">
+<img src="./malaria-1.0.0a.png" alt="malaria blood smear example images" width=450/>
+<img src="./malaria-1.0.0b.png" alt="malaria blood smear example images" style="margin-left:25px" width=125/>
+<img src="./malaria-1.0.0c.png" alt="malaria blood smear example images" style="margin-left:25px" width=130/>
+</P>
 
 
 ## How to install/run
@@ -96,9 +90,10 @@ Note that `make run` just kicks off the `project_driver.bash` script.  It might
 Once the run is in progress, you should find metrics progress logging in your
 MLFlow instance, something like this.  When you click on the metrics links in each run you can see plots over the epochs.<BR>
 
+<P float="left">
 <img src="./mlflow_runs.png" alt="MLflow logged run example image" width="100%"/>
 <img src="./mlflow_run3.png" alt="MLflow logged run example image" width="45%"/><img src="./mlflow_run0.png" alt="MLflow logged run example image" width="45%"/>
-<P>
+</P>
 
 We can see how the transfer-learned VGG16 model does better than the other models tried above, and how it converges faster.  It's not quite a fair comparison though, because the VGG16 run used transfer-learning to perturb pre-trained (Imagenet) weights for this problem, whereas the other (albeit smaller) models were trained from scratch.  You'll find in the `define_network()` function in `train.py` that some extra layers were added to the end of the VGG16 network; this was to allow exploring different variations in transfer-learning and fine-tuning.  Of course you can replace all that with whatever you wish.
 
