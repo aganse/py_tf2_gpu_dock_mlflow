@@ -10,7 +10,7 @@ Here are step-by-step instructions to kick off a low-cost AWS GPU instance and u
 
 3. Under "Name and tags" choose any arbitrary name for your instance; I like to add a date into my instance names to keep track of things.
 
-4. Under "Application and OS Images" choose the following pre-made Deep Learning AMI (so that an NVIDIA driver and Docker is conveniently already installed) by pasting the following into the AMI search box:  **Deep Learning AMI GPU TensorFlow 2.12.0 (Ubuntu 20.04) 20230529**, hitting enter, and then clicking the Select button.
+4. Under "Application and OS Images" choose the following pre-made Deep Learning AMI (so that an NVIDIA driver and Docker is conveniently already installed) by pasting the following into the AMI search box:  **Deep Learning AMI GPU TensorFlow 2.12.0 (Ubuntu 20.04) 20230529**, hit enter, click "Community AMIs", and then click the yellow/orange Select button.
 
 5. Under "Instance Type" choose **g4dn.xlarge**, which as of this writing has NVIDIA T4 GPU, Intel CPU, \$0.58/hour for Ubuntu, 4 vCPU, 16GiB.  For the minimal default malaria example in this repo I recommend this smallest GPU instance.  Of course for your own modeling you can gradually increment upwards from there if you find you need to - just note the balance between more hours training on a cheaper instance vs. fewer hours training on a more expensive instance.
 
