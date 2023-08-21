@@ -66,59 +66,51 @@ which is actually "number of convolutional layers in the model").
 Note this repo has been written and tested assuming running on Linux.
 It will almost surely will not work out of the box in Windows.
 
-**Option #1:**  follow [this lowdown](doc/aws_ec2_install.md) to kick off a low-cost AWS GPU instance and use the aws_ec2_install.bash script to quickly set it up to run this py_tf2_gpu_dock_mlflow repo with the MLflow setup from the [docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo (assuming you already have an AWS account).
+**Option #1:**  follow [this lowdown](doc/aws_ec2_install.md) to kick off a
+low-cost AWS GPU instance and use the aws_ec2_install.bash script to quickly set
+it up to run this py_tf2_gpu_dock_mlflow repo with the MLflow setup from the
+[docker_mlflow_db](https://github.com/aganse/docker_mlflow_db) repo (assuming
+you already have an AWS account).
 
-**Option #2:**  follow the general approach here:
+**Option #2:**  follow these [more generalized instructions](doc/general_install.md)
+to prepare/setup what's needed to run the py_tf2_gpu_dock_mlflow training process,
+whether it's so you can use your own separate MLflow instance, or your own
+already-running server or EC2 instance, or whatever. Also, these more general
+instructions can give additional context to what steps are taken by the canned
+setup in Option #1.<P>&nbsp;</P>
 
-1. have GPU and Docker already working on your system (e.g. make sure [these checks](doc/check_gpu_docker.md) work).
-2. have your MLFLOW_TRACKING_URI environment var pointing to a running MLflow 
-   server, which must be running version 2+.  For example you might use a bash
-   line like this to set that:
-   `export MLFLOW_TRACKING_URI=http://localhost:5000`.  You might like to put
-   that in your shell resource file (.bashrc for example).
-3. either have your MLflow server's artifact storage directory accessible within 
-   `/storage/mlruns` (noting that `/storage` is volume-mapped into the container - 
-   see `MLproject` file), or your MLflow instance configured to hold everything in 
-   S3.
-4. have your data files accessible somewhere within `/storage` (which is 
-   volume-mapped into the container - see `MLproject` file).  For example, for 
-   this repo's default malaria problem the dataset is stored in `/storage/tfdata`.
-4. git clone this repo, cd into it, create python env via `make env`
-5. enter the python environment that was just made:  `source .venv/bin/activate`.
-6. `make load_tfdata` (if using the default tf dataset shown in this readme) to
-   download the data to /storage/tfdata.
-8. then `make build` to create the training Docker container.
-9. then `make run` (only this step actually requires the python env, just for 
-   mlflow cli).  The first thing mlflow does on starting the run is to add the 
-   latest state of the train script and other files on top of the image built from
-   the Dockerfile.  For this reason the run may initially look like it's frozen 
-   while one cpu is pegged at 100%; but it's building that new image which
-   takes several minutes.
-   The resulting new image takes the name of the one created by the `make build`
-   command, appended with a hash-based label of the present git commit hash, 
-   looking something like `<original_image_name>:4e23a5b`.
-   
 Note that `make run` just kicks off the `project_driver.bash` script.  It might
-   be useful to know that once you've got the repo forked in your own account and
-   updated to suit your needs, technically you don't even need to clone the repo 
-   anymore to run your trainings - you can reference your repo URL or your
-   pre-made remote docker image in the `mlflow run` command at the top of the 
-   `project_driver.bash` script.  The
-   [MLflow Projects](https://mlflow.org/docs/latest/projects.html) documentation
-   has more about that; just something to think about.
+be useful to know that once you've got the repo forked in your own account and
+updated to suit your needs, technically you don't even need to clone the repo 
+anymore to run your trainings - you can reference your repo URL or your
+pre-made remote docker image in the `mlflow run` command at the top of the 
+`project_driver.bash` script.  The
+[MLflow Projects](https://mlflow.org/docs/latest/projects.html) documentation
+has more about that; just something to think about.
 
 
 Once the run is in progress, you should find metrics progress logging in your
 MLFlow instance, something like this.  When you click on the metrics links in each run you can see plots over the epochs.<BR>
 
-<P float="left">
 <img src="doc/mlflow_runs.png" alt="MLflow logged run example image" width="100%"/>
-<img src="doc/mlflow_run3.png" alt="MLflow logged run example image" width="45%"/>
+
+Upon clicking an individual Run Name to view its details, clicking on one of the metrics
+can show you timeseries plots of the performance-in-progress:
+
+<P float="left">
+<img src="doc/mlflow_run3.png" alt="MLflow logged run example image" width="40%"/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="doc/mlflow_run0.png" alt="MLflow logged run example image" width="45%"/>
+<img src="doc/mlflow_run0.png" alt="MLflow logged run example image" width="40%"/>
 </P>
 
-We can see how the transfer-learned VGG16 model does better than the other models tried above, and how it converges faster.  It's not quite a fair comparison though, because the VGG16 run used transfer-learning to perturb pre-trained (Imagenet) weights for this problem, whereas the other (albeit smaller) models were trained from scratch.  You'll find in the `define_network()` function in `train.py` that some extra layers were added to the end of the VGG16 network; this was to allow exploring different variations in transfer-learning and fine-tuning.  Of course you can replace all that with whatever you wish.
+We can see for example how the transfer-learned VGG16 model does better than the
+other models tried above, and how it converges faster.  It's not quite a fair
+comparison though, because the VGG16 run used transfer-learning to perturb
+pre-trained (Imagenet) weights for this problem, whereas the other (albeit
+smaller) models were trained from scratch.  You'll find in the `define_network()`
+function in `train.py` that some extra layers were added to the end of the VGG16
+network; this was to allow exploring different variations in transfer-learning
+and fine-tuning.  Of course you can replace all that with whatever you wish.
 
 Lastly: the `make run` macro runs the `project_driver.bash` shell script, but a 
 Python script `project_driver.py` with mostly-corresponding functionality is 
