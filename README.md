@@ -98,9 +98,9 @@ Upon clicking an individual Run Name to view its details, clicking on one of the
 can show you timeseries plots of the performance-in-progress:
 
 <P float="left">
-<img src="doc/mlflow_run3.png" alt="MLflow logged run example image" width="40%"/>
+<img src="doc/mlflow_run3.png" alt="MLflow logged run example image" width="45%"/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="doc/mlflow_run0.png" alt="MLflow logged run example image" width="40%"/>
+<img src="doc/mlflow_run0.png" alt="MLflow logged run example image" width="45%"/>
 </P>
 
 We can see for example how the transfer-learned VGG16 model does better than the
