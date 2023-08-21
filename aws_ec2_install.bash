@@ -51,7 +51,6 @@ mkdir -p ~/src/python
 cd ~/src/python 
 git clone git@github.com:aganse/docker_mlflow_db.git
 cd docker_mlflow_db
-git checkout feature/update_versions
 echo -n mydbadminpassword  > ~/.pgadminpw
 echo db:5432:mlflow:postgres:mydbadminpassword > ~/.pgpass
 chmod 600 ~/.pg*
